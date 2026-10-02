@@ -1,0 +1,22 @@
+<section id="speed" data-transition="fade" style="background:#0F5C35;color:#EAF7EE;font-family:'DM Sans', Arial, sans-serif;padding:128px 128px 160px;display:flex;flex-direction:column;gap:40px">
+<p style="font-size:24px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:#A9F0C2">Why Jev</p>
+<h2 style="font-family:'Plus Jakarta Sans', Arial, sans-serif;font-size:72px;font-weight:800;line-height:1.1;letter-spacing:-1px;color:#EAF7EE">Same eight questions: 3.9x faster, 35x cheaper.</h2>
+<table style="font-family:'DM Sans', Arial, sans-serif;font-size:32px;color:#EAF7EE">
+<tr style="background:#0B4628"><th style="width:46%">40 real Suki complaints</th><th style="width:27%;text-align:right">Jev</th><th style="width:27%;text-align:right">Claude Haiku 4.5</th></tr>
+<tr><td>Median per decision</td><td style="text-align:right">586 ms</td><td style="text-align:right">2.29 s</td></tr>
+<tr><td>All 40, one at a time</td><td style="text-align:right">27.5 s</td><td style="text-align:right">105.7 s</td></tr>
+<tr><td>All 40, 8 at once</td><td style="text-align:right">4.9 s</td><td style="text-align:right">13.4 s</td></tr>
+<tr><td>Cost per decision</td><td style="text-align:right">$0.000023</td><td style="text-align:right">$0.000829</td></tr>
+</table>
+<p style="font-size:28px;line-height:1.4;color:#CFEBDA">Measured at the venue on Oct 2. From Vercel's servers, Jev answered in 214 ms against 1,296 ms.</p>
+<p style="position:absolute;left:128px;bottom:64px;width:1664px;font-size:24px;color:#A9D4BA">Both models got the same complaint text and the same questions. Jev and Haiku agreed on the top cause 93% of the time.</p>
+<aside>[3:30 to 4:15] WHY JEV. Show, don't tell.
+
+ACTION: switch to the browser tab at 127.0.0.1:8790. Click Random real complaint, then Race. Jev lands first (about 0.2 to 0.7 s); Claude Haiku follows 1 to 2 s later.
+
+Say: "Why not just ask a big language model? We raced them tonight: 40 real complaints, the same eight questions, the same laptop. Jev's median was 586 milliseconds; Claude Haiku's was 2.29 seconds. When Jev finished all 40, in 27.5 seconds, Haiku had done 8; it needed 105.7. And it costs 35 times more per decision. Asking one to sixteen questions barely moves Jev: 430 milliseconds to 553."
+
+Outside proof if asked: LiteLLM's independent benchmark (Sept 18) measured Jev at a 126.81 ms median against Haiku's 688.40 ms, 5.43 times faster. They picked the same top cause 93% of the time in our run.
+
+If the tab misbehaves, stay on this slide and read the table.</aside>
+</section>

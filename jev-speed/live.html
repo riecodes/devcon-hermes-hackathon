@@ -1,0 +1,631 @@
+<!doctype html>
+<title>Jev Live Race</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root {
+  --bg: #f7f7f4; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #77756f;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11, 11, 11, 0.10); --wash: rgba(11, 11, 11, 0.04);
+  --jev: #2a78d6; --llm: #eb6834; --good: #006300; --cell-empty: #ecebe6;
+  --f-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #9a988f;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255, 255, 255, 0.10); --wash: rgba(255, 255, 255, 0.05);
+  --jev: #3987e5; --llm: #d95926; --good: #0ca30c; --cell-empty: #262624; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #9a988f;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255, 255, 255, 0.10); --wash: rgba(255, 255, 255, 0.05);
+  --jev: #3987e5; --llm: #d95926; --good: #0ca30c; --cell-empty: #262624; color-scheme: dark }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font: 400 15px/1.55 var(--f-body); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 18px; padding-block: 28px 56px; display: grid; gap: 34px; }
+h1, h2 { font-family: var(--f-display); font-weight: 700; letter-spacing: 0.01em; line-height: 1.05; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.4rem, 7vw, 4rem); text-transform: uppercase; }
+h2 { font-size: 1.55rem; text-transform: uppercase; }
+p { margin: 0; }
+a { color: var(--jev); text-underline-offset: 2px; }
+button:focus-visible, a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--jev); outline-offset: 2px; }
+.eyebrow { font: 500 0.74rem/1.3 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 1.08rem; max-width: 64ch; color: var(--ink-2); }
+.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+section { display: grid; gap: 14px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; min-width: 0; }
+.note { font-size: 0.88rem; color: var(--muted); max-width: 70ch; }
+
+.header-row { display: flex; justify-content: space-between; align-items: baseline; gap: 20px; }
+.cost-meter { font: 600 1rem var(--f-mono); font-variant-numeric: tabular-nums; color: var(--ink); }
+
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.seg button { font: 500 0.86rem var(--f-body); color: var(--ink-2); background: transparent; border: 0; padding: 7px 12px; cursor: pointer; transition: 0.15s; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button[aria-pressed="true"] { background: var(--wash); color: var(--ink); font-weight: 600; }
+.run { font: 600 0.9rem var(--f-body); color: var(--surface); background: var(--ink); border: 0; border-radius: 8px; padding: 8px 16px; cursor: pointer; transition: 0.15s; }
+.run:hover { opacity: 0.9; }
+.run:disabled { opacity: 0.5; cursor: not-allowed; }
+
+textarea { font: 400 15px var(--f-body); color: var(--ink); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 12px; width: 100%; font-family: inherit; resize: vertical; }
+
+.panels { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.panel { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; display: grid; gap: 12px; }
+.panel-head { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.key { width: 12px; height: 3px; border-radius: 2px; flex: none; }
+.stopwatch { font: 600 2.2rem/1 var(--f-mono); font-variant-numeric: tabular-nums; text-align: center; }
+.bars { display: grid; gap: 10px; }
+.bar-row { display: grid; grid-template-columns: auto 1fr auto; gap: 8px; align-items: center; }
+.bar-label { font-size: 0.85rem; color: var(--ink-2); font-weight: 500; }
+.bar-container { background: var(--wash); border-radius: 4px; height: 12px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width 0.2s; }
+.bar-value { font-size: 0.8rem; color: var(--muted); font: 500 var(--f-mono); text-align: right; }
+.meta { font-size: 0.85rem; color: var(--muted); }
+.verdict { font-size: 1.02rem; color: var(--ink-2); min-height: 1.55em; }
+.verdict b { color: var(--ink); }
+.error { color: #cc0000; }
+
+.lanes { display: grid; gap: 12px; }
+.lane { display: grid; grid-template-columns: minmax(120px, 140px) 1fr auto; gap: 12px; align-items: center; }
+.lane-name { display: grid; gap: 2px; }
+.lane-name strong { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 0.95rem; }
+.lane-name span { font-size: 0.75rem; color: var(--muted); }
+.cells { display: grid; grid-template-columns: repeat(auto-fill, minmax(20px, 1fr)); gap: 1px; }
+.cell { height: 16px; border-radius: 2px; background: var(--cell-empty); transition: background 0.15s; }
+.lane[data-key="jev"] .cell.on { background: var(--jev); }
+.lane[data-key="llm"] .cell.on { background: var(--llm); }
+.clock-lane { display: grid; gap: 2px; text-align: right; }
+.clock-lane .t { font: 600 1.2rem var(--f-mono); font-variant-numeric: tabular-nums; }
+.clock-lane .s { font-size: 0.75rem; color: var(--muted); }
+
+.slider-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+input[type="range"] { width: 100%; height: 4px; border-radius: 2px; background: var(--grid); outline: none; accent-color: var(--jev); cursor: pointer; }
+.slider-value { font: 600 1.2rem var(--f-mono); color: var(--ink); min-width: 3ch; }
+
+.chart { width: 100%; height: 240px; }
+.chart svg { display: block; width: 100%; height: auto; }
+
+.warning { background: color-mix(in srgb, var(--llm) 15%, var(--bg)); border-left: 3px solid var(--llm); padding: 10px 12px; border-radius: 4px; font-size: 0.88rem; color: var(--ink-2); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+@media (max-width: 640px) {
+  .wrap { gap: 24px; }
+  .header-row { flex-direction: column; align-items: flex-start; }
+  .panels { grid-template-columns: 1fr; }
+  .lane { grid-template-columns: 1fr; }
+  .cells { grid-column: 1; }
+  .clock-lane { grid-column: 1; }
+  .slider-row { grid-template-columns: 1fr; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="header-row">
+      <div style="flex: 1;">
+        <p class="eyebrow">Camp Run · Suki Pulse · live</p>
+        <h1>Jev Live Race</h1>
+        <p class="lede">Paste a customer complaint and watch Jev and Claude Haiku 4.5 answer the same eight questions.</p>
+      </div>
+      <div>
+        <p class="cost-meter">Spent this session:<br><span id="session-cost">$0.0000</span></p>
+        <p style="font-size: 0.88rem; color: var(--muted); margin-top: 8px;"><a href="/recorded">Recorded benchmark</a></p>
+      </div>
+    </div>
+  </header>
+
+  <section>
+    <h2>Live race</h2>
+    <div class="card" style="display: grid; gap: 14px;">
+      <div class="controls">
+        <textarea id="complaint" maxlength="1200" placeholder="Paste a customer complaint here..." style="min-height: 80px;"></textarea>
+      </div>
+      <div class="controls">
+        <button type="button" class="run" id="random-btn">Random real complaint</button>
+        <button type="button" class="run" id="race-btn" style="background: var(--jev);">Race</button>
+      </div>
+      <div class="panels" id="panels" style="display: none;">
+        <div class="panel" data-key="jev">
+          <div class="panel-head"><i class="key" style="background: var(--jev);"></i><span>Jev</span></div>
+          <div class="stopwatch" id="jev-time">0.00 s</div>
+          <div class="bars" id="jev-bars"></div>
+          <div class="meta" id="jev-meta"></div>
+          <div class="error" id="jev-error" style="display: none;"></div>
+        </div>
+        <div class="panel" data-key="llm">
+          <div class="panel-head"><i class="key" style="background: var(--llm);"></i><span>Claude Haiku 4.5</span></div>
+          <div class="stopwatch" id="llm-time">0.00 s</div>
+          <div class="bars" id="llm-bars"></div>
+          <div class="meta" id="llm-meta"></div>
+          <div class="error" id="llm-error" style="display: none;"></div>
+        </div>
+      </div>
+      <p class="verdict" id="race-verdict" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>Batch race</h2>
+    <div class="card" style="display: grid; gap: 14px;">
+      <div class="controls">
+        <span style="color: var(--ink-2); font-size: 0.9rem;">Run on</span>
+        <div class="seg" role="group" aria-label="Batch size">
+          <button type="button" data-n="10" aria-pressed="false">10</button>
+          <button type="button" data-n="20" aria-pressed="true">20</button>
+          <button type="button" data-n="40" aria-pressed="false">40</button>
+        </div>
+        <span style="color: var(--muted); font-size: 0.88rem;">complaints · 8 at a time</span>
+        <button type="button" class="run" id="batch-btn" style="margin-left: auto;">Run batch race</button>
+      </div>
+      <div class="warning">Costs about $0.02 per 20 complaints.</div>
+      <div class="lanes" id="batch-lanes"></div>
+      <p class="verdict" id="batch-verdict" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section>
+    <h2>More questions, same wait</h2>
+    <div class="card" style="display: grid; gap: 14px;">
+      <div class="slider-row">
+        <div>
+          <label for="q-slider" style="display: block; font-size: 0.88rem; color: var(--muted); margin-bottom: 8px;">Questions per call</label>
+          <input type="range" id="q-slider" min="1" max="16" value="8">
+        </div>
+        <div class="slider-value" id="q-value">8</div>
+      </div>
+      <div class="controls">
+        <button type="button" class="run" id="scale-btn">Ask Jev</button>
+      </div>
+      <div id="chart-container" class="chart"></div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function() {
+  const CAUSES = {
+    late_delivery: 'Late delivery',
+    spoiled_damaged: 'Spoiled / damaged',
+    out_of_stock: 'Out of stock',
+    loyalty: 'Loyalty points',
+    promo: 'Promo code',
+    payment_refund: 'Payment / refund'
+  };
+
+  const CAUSE_KEYS = Object.keys(CAUSES);
+  const fmtMs = (ms) => (ms >= 1000 ? (ms / 1000).toFixed(2) : Math.round(ms)) + (ms >= 1000 ? ' s' : ' ms');
+  const fmtS = (ms) => (ms / 1000).toFixed(2) + ' s';
+  const usd = (v) => '$' + (v < 0.001 ? v.toFixed(6) : v.toFixed(4));
+
+  const state = {
+    sessionCost: 0,
+    raceRunning: false,
+    batchRunning: false,
+    raceResults: {},
+    scaleData: []
+  };
+
+  // ---- Header ----
+  function updateSessionCost(delta) {
+    state.sessionCost += delta;
+    document.getElementById('session-cost').textContent = usd(state.sessionCost);
+  }
+
+  // ---- Load sample complaint ----
+  async function loadSampleComplaint() {
+    try {
+      const resp = await fetch('/api/sample?n=1');
+      const data = await resp.json();
+      if (data.length > 0) {
+        document.getElementById('complaint').value = data[0].text;
+      }
+    } catch (e) {
+      console.error('Failed to load sample:', e);
+    }
+  }
+
+  // ---- Live race ----
+  const raceBtn = document.getElementById('race-btn');
+  const randomBtn = document.getElementById('random-btn');
+  const complaintsEl = document.getElementById('complaint');
+  const panelsEl = document.getElementById('panels');
+
+  randomBtn.addEventListener('click', loadSampleComplaint);
+
+  raceBtn.addEventListener('click', async () => {
+    const text = complaintsEl.value.trim();
+    if (!text) return;
+    if (state.raceRunning) return;
+
+    state.raceRunning = true;
+    raceBtn.disabled = true;
+    randomBtn.disabled = true;
+    state.raceResults = { jev: null, llm: null };
+
+    panelsEl.style.display = 'grid';
+    document.getElementById('race-verdict').textContent = 'Racing...';
+    document.getElementById('jev-time').textContent = '0.00 s';
+    document.getElementById('llm-time').textContent = '0.00 s';
+    document.getElementById('jev-bars').innerHTML = '';
+    document.getElementById('llm-bars').innerHTML = '';
+    document.getElementById('jev-meta').textContent = '';
+    document.getElementById('llm-meta').textContent = '';
+    document.getElementById('jev-error').style.display = 'none';
+    document.getElementById('llm-error').style.display = 'none';
+
+    const t0 = performance.now();
+    const timers = { jev: null, llm: null };
+
+    const updateTime = (model) => {
+      const result = state.raceResults[model];
+      if (!result) {
+        if (timers[model]) clearTimeout(timers[model]);
+        timers[model] = setTimeout(() => updateTime(model), 50);
+        const elapsed = Math.round((performance.now() - t0) * 10) / 10;
+        document.getElementById(`${model}-time`).textContent = fmtS(elapsed);
+      } else {
+        clearTimeout(timers[model]);
+        document.getElementById(`${model}-time`).textContent = fmtS(result.ms);
+      }
+    };
+
+    const startTimer = () => {
+      updateTime('jev');
+      updateTime('llm');
+    };
+
+    try {
+      const url = `/api/race?text=${encodeURIComponent(text)}&questions=8`;
+      const sse = new EventSource(url);
+
+      sse.addEventListener('start', (e) => {
+        startTimer();
+      });
+
+      sse.addEventListener('result', (e) => {
+        const data = JSON.parse(e.data);
+        if (data.error) {
+          const el = document.getElementById(`${data.model}-error`);
+          el.textContent = data.error;
+          el.style.display = 'block';
+        } else {
+          state.raceResults[data.model] = data;
+          updateSessionCost(data.cost_usd || 0);
+          renderPanelResult(data.model, data);
+        }
+      });
+
+      sse.addEventListener('done', (e) => {
+        sse.close();
+        clearTimeout(timers.jev);
+        clearTimeout(timers.llm);
+        updateRaceVerdict();
+        state.raceRunning = false;
+        raceBtn.disabled = false;
+        randomBtn.disabled = false;
+      });
+
+      sse.addEventListener('error', (e) => {
+        sse.close();
+        clearTimeout(timers.jev);
+        clearTimeout(timers.llm);
+        state.raceRunning = false;
+        raceBtn.disabled = false;
+        randomBtn.disabled = false;
+      });
+    } catch (e) {
+      console.error('Race failed:', e);
+      state.raceRunning = false;
+      raceBtn.disabled = false;
+      randomBtn.disabled = false;
+    }
+  });
+
+  function renderPanelResult(model, data) {
+    const prefix = model;
+    document.getElementById(`${prefix}-time`).textContent = fmtS(data.ms);
+
+    const barsEl = document.getElementById(`${prefix}-bars`);
+    barsEl.innerHTML = '';
+
+    CAUSE_KEYS.forEach((key) => {
+      const pct = Math.round((data.causes[key] || 0) * 100);
+      const row = document.createElement('div');
+      row.className = 'bar-row';
+
+      const label = document.createElement('div');
+      label.className = 'bar-label';
+      label.textContent = CAUSES[key];
+
+      const container = document.createElement('div');
+      container.className = 'bar-container';
+
+      const fill = document.createElement('div');
+      fill.className = 'bar-fill';
+      fill.style.background = `var(--${model})`;
+      fill.style.width = pct + '%';
+
+      container.appendChild(fill);
+
+      const value = document.createElement('div');
+      value.className = 'bar-value';
+      value.textContent = pct + '%';
+
+      row.appendChild(label);
+      row.appendChild(container);
+      row.appendChild(value);
+      barsEl.appendChild(row);
+    });
+
+    const churnLabels = ['Low', 'Medium', 'High'];
+    const churnLabel = churnLabels[Math.min(data.churn_risk, 2)];
+    const urgentPct = Math.round(data.urgent * 100);
+
+    const metaHTML = `Churn risk: ${churnLabel} · Urgent: ${urgentPct}% · Tokens: ${data.tokens_in || 0}in/${data.tokens_out || 0}out · ${usd(data.cost_usd || 0)}`;
+    document.getElementById(`${prefix}-meta`).innerHTML = metaHTML;
+  }
+
+  function updateRaceVerdict() {
+    const j = state.raceResults.jev;
+    const l = state.raceResults.llm;
+    if (!j || !l) return;
+
+    const faster = j.ms < l.ms ? 'jev' : 'llm';
+    const slower = faster === 'jev' ? l : j;
+    const speedup = slower.ms / (faster === 'jev' ? j.ms : l.ms);
+
+    const line = `Jev answered in ${fmtS(j.ms)}, ${fmtS(Math.abs(j.ms - l.ms))} before Claude Haiku 4.5 (${speedup.toFixed(1)}x faster).`;
+    document.getElementById('race-verdict').innerHTML = `<b>${line}</b>`;
+  }
+
+  // ---- Batch race ----
+  let batchN = 20;
+  const batchNBtns = document.querySelectorAll('.seg[role="group"] button[data-n]');
+  batchNBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      batchNBtns.forEach((b) => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
+      batchN = parseInt(btn.dataset.n);
+    });
+  });
+
+  const batchBtn = document.getElementById('batch-btn');
+  batchBtn.addEventListener('click', async () => {
+    if (state.batchRunning) return;
+    state.batchRunning = true;
+    batchBtn.disabled = true;
+
+    const batchLanesEl = document.getElementById('batch-lanes');
+    batchLanesEl.innerHTML = '';
+    document.getElementById('batch-verdict').textContent = 'Starting batch...';
+
+    const addLane = (key, name) => {
+      const lane = document.createElement('div');
+      lane.className = 'lane';
+      lane.dataset.key = key;
+
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'lane-name';
+      const strong = document.createElement('strong');
+      const keyEl = document.createElement('i');
+      keyEl.className = 'key';
+      keyEl.style.background = `var(--${key})`;
+      strong.appendChild(keyEl);
+      strong.textContent = name + ' ';
+      strong.insertBefore(keyEl, strong.firstChild);
+      nameDiv.appendChild(strong);
+      const span = document.createElement('span');
+      span.textContent = 'live elapsed';
+      nameDiv.appendChild(span);
+
+      const cells = document.createElement('div');
+      cells.className = 'cells';
+      for (let i = 0; i < batchN; i++) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cells.appendChild(cell);
+      }
+
+      const clock = document.createElement('div');
+      clock.className = 'clock-lane';
+      const t = document.createElement('div');
+      t.className = 't num';
+      t.textContent = '0.00 s';
+      const s = document.createElement('div');
+      s.className = 's';
+      s.textContent = '0 / ' + batchN;
+      clock.appendChild(t);
+      clock.appendChild(s);
+
+      lane.appendChild(nameDiv);
+      lane.appendChild(cells);
+      lane.appendChild(clock);
+      batchLanesEl.appendChild(lane);
+
+      return { cells: cells.querySelectorAll('.cell'), t, s };
+    };
+
+    const jevLane = addLane('jev', 'Jev');
+    const llmLane = addLane('llm', 'Claude Haiku 4.5');
+
+    const laneState = { jev: { done: 0, startMs: 0 }, llm: { done: 0, startMs: 0 } };
+
+    try {
+      const url = `/api/batch?n=${batchN}&concurrency=8`;
+      const sse = new EventSource(url);
+
+      sse.addEventListener('start', (e) => {
+        const data = JSON.parse(e.data);
+        laneState.jev.startMs = performance.now();
+        laneState.llm.startMs = performance.now();
+      });
+
+      sse.addEventListener('tick', (e) => {
+        const data = JSON.parse(e.data);
+        const lane = data.model === 'jev' ? jevLane : llmLane;
+        const ls = laneState[data.model];
+
+        lane.cells[data.i].classList.add('on');
+        ls.done++;
+        lane.s.textContent = ls.done + ' / ' + batchN;
+
+        const elapsed = Math.round((performance.now() - ls.startMs) * 10) / 10;
+        lane.t.textContent = fmtS(elapsed);
+      });
+
+      sse.addEventListener('summary', (e) => {
+        const data = JSON.parse(e.data);
+        updateSessionCost(data.cost_usd || 0);
+      });
+
+      sse.addEventListener('done', (e) => {
+        sse.close();
+        updateBatchVerdict();
+        state.batchRunning = false;
+        batchBtn.disabled = false;
+      });
+
+      sse.addEventListener('error', (e) => {
+        try {
+          const data = JSON.parse(sse.lastEventId || e.data || '{}');
+          if (data.status === 429) {
+            document.getElementById('batch-verdict').textContent = 'A batch race is already running, try again in a moment.';
+          }
+        } catch (ex) {}
+        sse.close();
+        state.batchRunning = false;
+        batchBtn.disabled = false;
+      });
+    } catch (e) {
+      console.error('Batch failed:', e);
+      state.batchRunning = false;
+      batchBtn.disabled = false;
+    }
+  });
+
+  function updateBatchVerdict() {
+    const verdict = document.getElementById('batch-verdict');
+    const jevLane = document.querySelector('.lane[data-key="jev"] .t');
+    const llmLane = document.querySelector('.lane[data-key="llm"] .t');
+    if (jevLane && llmLane) {
+      const jevMs = parseFloat(jevLane.textContent) * 1000;
+      const llmMs = parseFloat(llmLane.textContent) * 1000;
+      const line = `Jev finished all ${batchN} in ${fmtS(jevMs)}. Claude Haiku 4.5 needed ${fmtS(llmMs)}.`;
+      verdict.innerHTML = `<b>${line}</b>`;
+    }
+  }
+
+  // ---- Questions scaling ----
+  const qSlider = document.getElementById('q-slider');
+  const qValue = document.getElementById('q-value');
+  const scaleBtn = document.getElementById('scale-btn');
+
+  qSlider.addEventListener('input', () => {
+    qValue.textContent = qSlider.value;
+  });
+
+  scaleBtn.addEventListener('click', async () => {
+    const text = complaintsEl.value.trim();
+    if (!text) return;
+    const q = parseInt(qSlider.value);
+
+    try {
+      const resp = await fetch(`/api/scale?text=${encodeURIComponent(text)}&questions=${q}`);
+      const data = await resp.json();
+      updateSessionCost(data.cost_usd || 0);
+      state.scaleData.push({ questions: data.questions, ms: data.ms });
+      renderScaleChart();
+    } catch (e) {
+      console.error('Scale query failed:', e);
+    }
+  });
+
+  function renderScaleChart() {
+    const container = document.getElementById('chart-container');
+    if (state.scaleData.length === 0) return;
+
+    const data = state.scaleData;
+    const maxMs = Math.max(...data.map((d) => d.ms));
+    const maxQ = Math.max(...data.map((d) => d.questions));
+
+    const W = 400, H = 200, m = { l: 40, r: 30, t: 20, b: 30 };
+    const plotW = W - m.l - m.r;
+    const plotH = H - m.t - m.b;
+
+    const xScale = plotW / maxQ;
+    const yScale = plotH / maxMs;
+
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+    const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+    bgRect.setAttribute('width', W);
+    bgRect.setAttribute('height', H);
+    bgRect.setAttribute('fill', 'var(--surface)');
+    bgRect.setAttribute('style', 'fill: var(--surface);');
+    svg.appendChild(bgRect);
+
+    const axisX = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    axisX.setAttribute('x1', m.l);
+    axisX.setAttribute('y1', H - m.b);
+    axisX.setAttribute('x2', W - m.r);
+    axisX.setAttribute('y2', H - m.b);
+    axisX.setAttribute('stroke', 'var(--axis)');
+    axisX.setAttribute('stroke-width', 1);
+    svg.appendChild(axisX);
+
+    const axisY = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    axisY.setAttribute('x1', m.l);
+    axisY.setAttribute('y1', m.t);
+    axisY.setAttribute('x2', m.l);
+    axisY.setAttribute('y2', H - m.b);
+    axisY.setAttribute('stroke', 'var(--axis)');
+    axisY.setAttribute('stroke-width', 1);
+    svg.appendChild(axisY);
+
+    data.forEach((d) => {
+      const x = m.l + d.questions * xScale;
+      const y = H - m.b - d.ms * yScale;
+
+      const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      circle.setAttribute('cx', x);
+      circle.setAttribute('cy', y);
+      circle.setAttribute('r', 4);
+      circle.setAttribute('fill', 'var(--jev)');
+      circle.setAttribute('opacity', 0.7);
+      svg.appendChild(circle);
+    });
+
+    const xText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    xText.setAttribute('x', W / 2);
+    xText.setAttribute('y', H - 6);
+    xText.setAttribute('text-anchor', 'middle');
+    xText.setAttribute('class', 'num');
+    xText.setAttribute('font-size', 11);
+    xText.setAttribute('fill', 'var(--muted)');
+    xText.textContent = 'questions';
+    svg.appendChild(xText);
+
+    const yText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    yText.setAttribute('x', 12);
+    yText.setAttribute('y', m.t - 4);
+    yText.setAttribute('font-size', 11);
+    yText.setAttribute('fill', 'var(--muted)');
+    yText.textContent = 'ms';
+    svg.appendChild(yText);
+
+    container.innerHTML = '';
+    container.appendChild(svg);
+  }
+
+  // ---- Init ----
+  loadSampleComplaint();
+})();
+</script>

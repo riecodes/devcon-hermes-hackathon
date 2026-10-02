@@ -1,0 +1,206 @@
+SUKI PULSE - PITCH SCRIPT (5 minutes)
+Every number below was measured or queried tonight. Suki Mart and its people are fictional sandbox data.
+
+====================================================================
+0:00 - 0:30  HOOK  (Slide 1: cover)
+====================================================================
+"Meet Joshua, a Suki Mart customer at Tomas Morato.
+His delivery arrived 38 minutes late.
+He opened ticket 585, eleven days ago. Nobody has answered it.
+So he left a two-star review titled 'Please fix this.' Nobody replied to that either.
+Right now there are 694 complaints like his waiting."
+
+"We're [team]. This is Suki Pulse: complaint, root cause, fix, in one click."
+
+(Slow down on Joshua. Don't name features yet.)
+
+====================================================================
+0:30 - 1:00  THE GAP  (Slide 2: problem)
+====================================================================
+"Suki Mart is 12 branches and six months of data:
+221,142 rows, 35,203 orders, 38.3 million pesos in sales.
+
+Support sees 264 open tickets, 75 days old on average, the oldest 182 days.
+430 bad reviews with no reply.
+
+But the reasons live in operations.
+Half of Tomas Morato's deliveries are late, against 32% chain-wide.
+224 items are running low with no purchase order.
+142 loyalty accounts disagree with their own ledger, 44,214 points out of sync.
+
+Two teams, one problem, and no bridge between them."
+
+====================================================================
+1:00 - 1:20  THE BRIDGE  (Slide 3: three layers)
+====================================================================
+"Suki Pulse is that bridge, in three connected layers.
+A pane in Hermes Desktop: a branch picker, 4 buttons, 4 Ctrl+K commands.
+A skill with 3 workflows: pulse check, fix the top cause, recover a customer.
+And our own MCP server: 10 tools, 5 that read and 5 that act,
+each one answering a business question, like 'which rider is behind the late deliveries.'
+One click goes through all three and comes back with real data."
+
+====================================================================
+1:20 - 1:30  THE PAIRING  (Slide 4: Jev)
+====================================================================
+"The trick is the pairing. Jev, from TypeSafe, only labels:
+8 questions per complaint, answered in about half a second.
+Hermes does the thinking and the acting.
+We ran all 694 complaints across all 12 branches:
+64.7 seconds, 388,465 input tokens, about one and a half US cents, zero fallbacks.
+Let me show you."
+
+>> SWITCH TO HERMES DESKTOP (pane open, branch TMR)
+
+====================================================================
+1:30 - 3:30  LIVE DEMO  (Hermes Desktop; Slide 5 video = backup)
+====================================================================
+1. Show the Suki Pulse pane: "It lives inside Hermes like a built-in panel."
+   Branch TMR. Click PULSE CHECK.
+
+2. While it runs (about 2 s):
+   "Jev is reading 25 complaints right now, 8 questions each, in parallel."
+
+3. When the card lands, point at:
+   - "25 complaints triaged, 4 at high churn risk, for $0.000589."
+   - LATE DELIVERY (10): "TMR is 47.3% late in the last 30 days.
+     One rider: 63 late out of 85, across 10 branches."
+   - SPOILED (7): "41,224 pesos of perishables here expire within 3 days.
+     Across the chain it's 951,242 pesos."
+   - OUT OF STOCK (5): "22 items here with no purchase order."
+   - Tool calls in the transcript: "Each step is one of our tools, named for a business question."
+
+4. Click FIX TOP ROOT CAUSE.
+   "It plans fixes on both sides, and it asks before touching anything." Type: yes
+
+5. Watch the actions land:
+   rider flagged for coaching, purchase orders drafted with the supplier's REAL lead time,
+   loyalty points fixed (never lowered), ticket resolved, a warm Taglish review reply.
+
+6. THE PAYOFF: the Impact card, before and after. Pause on it.
+
+7. If time allows: Ctrl+K, type "suki": "Native commands, not a bolt-on."
+
+IF THE LIVE RUN BREAKS: go to Slide 5 video, say "here's the same run from earlier."
+(For sound, play suki-pulse-draft-a-sound.mp4 from the laptop.)
+
+====================================================================
+3:30 - 4:15  WHY JEV  (Slide 8 + browser tab 127.0.0.1:8790)
+====================================================================
+In the browser: click RANDOM REAL COMPLAINT, then RACE. Jev lands first.
+
+"Why not just ask a big language model? We raced them tonight:
+40 real complaints, the same 8 questions, the same laptop.
+Jev's median was 586 milliseconds. Claude Haiku's was 2.29 seconds.
+When Jev finished all 40, in 27.5 seconds, Haiku had done 8. It needed 105.7.
+Eight at once: 4.9 seconds against 13.4.
+Per decision, $0.000023 against $0.000829. That's 35 times cheaper.
+And one question or sixteen barely matters to Jev: 430 milliseconds to 553."
+
+====================================================================
+4:15 - 5:00  CLOSE  (Slide 9: QR codes)
+====================================================================
+"Everything you saw is live. Scan any code:
+the dashboard, the live race (passcode on screen), the benchmark, and the code.
+Every number tonight was measured, not mocked."
+
+(Slowly) "Complaints in. Causes found. Both sides fixed. With Hermes doing the work. Thank you."
+
+====================================================================
+LIKELY QUESTIONS
+====================================================================
+Q: Why not just use an LLM?
+A: Same complaints, same questions: Jev was 3.9x faster and 35x cheaper. Race it yourself at the link.
+   Outside proof: LiteLLM's independent test measured Jev at 126.81 ms median vs Haiku 688.40 ms (5.43x).
+
+Q: Is Jev accurate?
+A: It picked the same top cause as Claude Haiku on 93% of complaints. It returns probabilities,
+   so Hermes sees how sure it is, and there's a keyword fallback if Jev is busy.
+
+Q: Is it safe to let it write?
+A: It asks before any write, never lowers a loyalty balance, and logs every action.
+
+Q: How big is the data?
+A: 221,142 rows in 18 tables: 129,846 order items, 35,203 orders, 17,887 shifts, 6 months of history.
+
+Q: What else did you find?
+A: The worst supplier promises 5 days and takes 11.3, late 88% of the time.
+   47 items are at zero stock. A promo (SEPT3X) ran on 221 orders with no discount recorded.
+
+Q: What's next?
+A: Branch managers get the pulse on their phone: the same Hermes already runs in Telegram.
+
+====================================================================
+WHAT IS TYPESAFE AI? (brief, if asked)
+====================================================================
+TypeSafe AI makes "System One" models: fast models built to make decisions, not to write text.
+Their first model is Jev (we used jev-1.13.0).
+
+How it works: you send a "state" (here, a customer's complaint) plus typed questions.
+Jev answers every question at once, in parallel, with a probability for each answer:
+  - yes/no questions ("Is this about a late delivery?" -> 0.95)
+  - scores ("How likely is this customer to leave? Low / Medium / High")
+  - choices (pick one label from a list)
+Software can use the answers directly. Nothing to parse, no invented labels.
+
+Why it matters: it's fast and cheap. TypeSafe publishes 70 to 500 ms per decision and
+$0.042 per million input tokens, with output free. Early access opened Sept 15, 2026.
+
+Say it in one line:
+"Jev is like an if-statement with judgment: it reads the complaint and answers our questions
+ in half a second, for a fraction of a cent."
+
+====================================================================
+HOW THE THREE LAYERS CONNECT (what we built)
+====================================================================
+LAYER 3, THE FACE: Desktop plugin  (desktop-plugin/suki-pulse/plugin.js)
+  - A "Suki Pulse" pane inside Hermes Desktop: branch picker + 4 buttons
+    (Pulse check, Fix top root cause, Recover riskiest customer, Branch scorecard).
+  - 4 Ctrl+K commands and a Ctrl+Shift+P shortcut.
+  - Clicking a button types a prompt into the chat for you, for example:
+    "Use the suki-pulse skill: run a pulse check for branch TMR."
+  - It also draws 2 native result cards: "Root causes" and "Impact" (before and after).
+
+LAYER 2, THE PLAYBOOK: Skill  (skills/suki-pulse/SKILL.md)
+  - The prompt names the skill, so Hermes loads it. The skill tells Hermes which tools to call,
+    in what order, and how to answer. 3 workflows:
+    A. Pulse check: scorecard -> Jev triage -> root-cause rollup -> headline, card, table, cost.
+    B. Fix: plan up to 6 actions on BOTH sides, ASK for a yes, run them, re-run the scorecard.
+    C. Recover a customer: their full story, then resolve, reply and give goodwill points.
+  - Rules: never write before the user confirms, never lower a customer's points,
+    only quote real numbers from the tools.
+
+LAYER 1, THE HANDS: MCP server  (mcp-server/server.py, registered in Hermes as "suki")
+  - 10 tools, each answering one business question. No generic "run any SQL" tool.
+    Read:  list_branches, pulse_scorecard, triage_feedback, root_cause_rollup, get_customer_story
+    Act:   resolve_ticket, reply_to_review, fix_loyalty_balance, draft_purchase_orders,
+           flag_rider_for_coaching
+  - triage_feedback is where Jev comes in: one Jev call per complaint, 8 questions
+    (6 root causes, churn risk, urgency). Results are cached so re-runs are free,
+    with a keyword fallback if Jev is busy.
+  - root_cause_rollup joins each cause to operations: late delivery -> riders and deliveries;
+    spoiled -> expiring stock and late suppliers; out of stock -> items with no purchase order;
+    loyalty -> ledger mismatches.
+  - Every write is logged to a pulse_actions table.
+
+THE LOOP, END TO END (one click):
+  Click "Pulse check" in the pane
+   -> the plugin sends the prompt to the chat
+   -> Hermes loads the suki-pulse skill
+   -> the skill calls the suki MCP tools (Jev labels the complaints, SQL finds the causes)
+   -> Hermes replies with a card line holding the real numbers
+   -> the plugin draws that line as a native "Root causes" card in the chat.
+  GUI action -> skill -> MCP -> real data back in the GUI.
+
+Say it in one line:
+"The pane is the button, the skill is the brain's checklist, the MCP server is the hands,
+ and the answer comes back as a card in the same window."
+
+====================================================================
+LINKS
+====================================================================
+Dashboard:          https://suki-pulse.vercel.app/
+Live race:          https://suki-pulse.vercel.app/race/   (passcode-gated)
+Recorded benchmark: https://suki-pulse.vercel.app/benchmark/
+Code:               https://github.com/riecodes/Camp-Run-with-Hermes-Agent
+Local live race:    http://127.0.0.1:8790

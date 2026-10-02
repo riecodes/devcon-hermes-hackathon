@@ -1,0 +1,507 @@
+<title>Jev Decision Race</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: a race-control timing sheet. One loud element (the race), everything else is quiet telemetry on paper. */
+:root {
+  --bg: #f7f7f4; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e; --muted: #77756f;
+  --grid: #e1e0d9; --axis: #c3c2b7; --border: rgba(11, 11, 11, 0.10); --wash: rgba(11, 11, 11, 0.04);
+  --jev: #2a78d6; --llm: #eb6834; --good: #006300; --cell-empty: #ecebe6;
+  --f-display: "Barlow Condensed", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #9a988f;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255, 255, 255, 0.10); --wash: rgba(255, 255, 255, 0.05);
+  --jev: #3987e5; --llm: #d95926; --good: #0ca30c; --cell-empty: #262624; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7; --muted: #9a988f;
+  --grid: #2c2c2a; --axis: #383835; --border: rgba(255, 255, 255, 0.10); --wash: rgba(255, 255, 255, 0.05);
+  --jev: #3987e5; --llm: #d95926; --good: #0ca30c; --cell-empty: #262624; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font: 400 15px/1.55 var(--f-body); }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 18px; padding-block: 28px 56px; display: grid; gap: 34px; }
+h1, h2 { font-family: var(--f-display); font-weight: 700; letter-spacing: 0.01em; line-height: 1.05; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(2.4rem, 7vw, 4rem); text-transform: uppercase; }
+h2 { font-size: 1.55rem; text-transform: uppercase; }
+p { margin: 0; }
+a { color: var(--jev); text-underline-offset: 2px; }
+button:focus-visible, a:focus-visible, [tabindex]:focus-visible, summary:focus-visible { outline: 2px solid var(--jev); outline-offset: 2px; }
+.eyebrow { font: 500 0.74rem/1.3 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 1.08rem; max-width: 64ch; color: var(--ink-2); }
+.lede b { color: var(--ink); font-weight: 600; }
+.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+section { display: grid; gap: 14px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 18px; min-width: 0; }
+.note { font-size: 0.88rem; color: var(--muted); max-width: 70ch; }
+
+/* ---------- race ---------- */
+.race { display: grid; gap: 16px; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.seg button { font: 500 0.86rem var(--f-body); color: var(--ink-2); background: transparent; border: 0; padding: 7px 12px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button[aria-pressed="true"] { background: var(--wash); color: var(--ink); font-weight: 600; }
+.run { font: 600 0.9rem var(--f-body); color: var(--surface); background: var(--ink); border: 0; border-radius: 8px; padding: 8px 16px; cursor: pointer; margin-left: auto; }
+.lane { display: grid; grid-template-columns: minmax(150px, 210px) 1fr minmax(92px, auto); gap: 14px; align-items: center; }
+.lane-name { display: grid; gap: 1px; min-width: 0; }
+.lane-name strong { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.key { width: 14px; height: 3px; border-radius: 2px; flex: none; }
+.lane-name span { font-size: 0.78rem; color: var(--muted); }
+.cells { display: grid; grid-template-columns: repeat(40, 1fr); gap: 2px; min-width: 0; }
+.cell { height: 26px; border-radius: 2px; background: var(--cell-empty); }
+.lane[data-key="jev"] .cell.on { background: var(--jev); }
+.lane[data-key="llm"] .cell.on { background: var(--llm); }
+.clock { text-align: right; display: grid; gap: 0; }
+.clock .t { font: 500 1.35rem/1.1 var(--f-mono); font-variant-numeric: tabular-nums; }
+.clock .s { font-size: 0.74rem; color: var(--muted); }
+.verdict { font-size: 1.02rem; color: var(--ink-2); min-height: 1.55em; }
+.verdict b { color: var(--ink); }
+
+/* ---------- tiles ---------- */
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; align-content: start; }
+.tile .label { font-size: 0.82rem; color: var(--ink-2); }
+.tile .value { font: 600 1.9rem/1.1 var(--f-body); }
+.tile .sub { font-size: 0.8rem; color: var(--muted); }
+
+/* ---------- charts ---------- */
+.charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(330px, 1fr)); gap: 16px; }
+.chart-head { display: grid; gap: 4px; margin-bottom: 8px; }
+.chart-head h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+.chart-head p { font-size: 0.86rem; color: var(--muted); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.82rem; color: var(--ink-2); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { font-family: var(--f-body); }
+.tick { fill: var(--muted); font-size: 11px; }
+.axis-line { stroke: var(--axis); stroke-width: 1; }
+.grid-line { stroke: var(--grid); stroke-width: 1; }
+.mark { cursor: default; }
+.mark:focus { outline: none; }
+.mark:focus .vis, .mark:hover .vis { filter: brightness(1.15); stroke: var(--ink); stroke-width: 1.5; }
+.annot { fill: var(--ink-2); font-size: 11.5px; }
+.annot-strong { fill: var(--ink); font-size: 12px; font-weight: 600; }
+
+/* ---------- tooltip ---------- */
+#tip { position: fixed; z-index: 10; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12); max-width: 300px; font-size: 0.82rem; display: grid; gap: 3px; }
+#tip[hidden] { display: none; }
+#tip .v { font: 600 1rem var(--f-mono); font-variant-numeric: tabular-nums; display: flex; align-items: center; gap: 7px; }
+#tip .v i { width: 12px; height: 2px; border-radius: 1px; display: inline-block; }
+#tip .l { color: var(--ink-2); }
+#tip .x { color: var(--muted); font-size: 0.78rem; }
+
+/* ---------- tables ---------- */
+.tbl { overflow-x: auto; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.88rem; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font: 500 0.72rem/1.3 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+td.r, th.r { text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ours td { background: var(--wash); font-weight: 500; }
+details summary { cursor: pointer; font-weight: 600; padding: 4px 0; }
+details[open] summary { margin-bottom: 10px; }
+footer { display: grid; gap: 6px; font-size: 0.84rem; color: var(--muted); }
+
+@media (max-width: 640px) {
+  .lane { grid-template-columns: 1fr auto; }
+  .lane .cells { grid-column: 1 / -1; grid-row: 2; }
+  .cell { height: 20px; }
+  .run { margin-left: 0; }
+}
+</style>
+
+<div class="wrap">
+  <header style="display:grid;gap:12px">
+    <p class="eyebrow" id="eyebrow">Camp Run · Suki Pulse</p>
+    <h1>Jev Decision Race</h1>
+    <p class="lede" id="lede">Forty real Suki Mart complaints. Eight questions each. Same laptop, same Wi-Fi.</p>
+  </header>
+
+  <section aria-labelledby="race-h">
+    <div class="card race">
+      <div class="controls">
+        <h2 id="race-h" style="font-size:1.2rem;margin-right:6px">The race</h2>
+        <div class="seg" role="group" aria-label="How calls are sent">
+          <button type="button" id="mode-seq" aria-pressed="true">One at a time</button>
+          <button type="button" id="mode-par" aria-pressed="false">8 at a time</button>
+        </div>
+        <div class="seg" role="group" aria-label="Replay speed">
+          <button type="button" id="speed-1" aria-pressed="true">Real time</button>
+          <button type="button" id="speed-4" aria-pressed="false">4x</button>
+        </div>
+        <button type="button" class="run" id="run">Run the race</button>
+      </div>
+      <div id="lanes" style="display:grid;gap:14px"></div>
+      <p class="verdict" id="verdict" aria-live="polite"></p>
+    </div>
+  </section>
+
+  <section aria-label="Headline numbers">
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section aria-labelledby="dist-h">
+    <h2 id="dist-h">Where the time goes</h2>
+    <div class="charts">
+      <div class="card">
+        <div class="chart-head">
+          <h3>Seconds per decision</h3>
+          <p>Each dot is one complaint, one call, eight questions. Lines mark the median (p50) and p95.</p>
+          <div class="legend" id="legend-dist"></div>
+        </div>
+        <div id="chart-dist"></div>
+      </div>
+      <div class="card">
+        <div class="chart-head">
+          <h3>More questions, same wait</h3>
+          <p>Jev answers every question in a call in parallel. Median latency for 1 to 16 questions on the same six complaints.</p>
+        </div>
+        <div id="chart-scale"></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="burst-h">
+    <h2 id="burst-h">Eight in flight</h2>
+    <div class="card">
+      <div class="chart-head">
+        <h3>Every call, start to finish</h3>
+        <p id="burst-sub">All 40 complaints sent with 8 calls open at once. One bar per call, on one shared time axis.</p>
+        <div class="legend" id="legend-burst"></div>
+      </div>
+      <div id="chart-burst"></div>
+    </div>
+    <p class="note" id="fullrun"></p>
+  </section>
+
+  <section aria-labelledby="claims-h">
+    <h2 id="claims-h">What others measured</h2>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>Source</th><th>Setup</th><th class="r">Jev</th><th class="r">Compared with</th></tr></thead>
+        <tbody id="claims"></tbody>
+      </table>
+    </div>
+    <p class="note" id="claims-note"></p>
+  </section>
+
+  <section aria-labelledby="table-h">
+    <details>
+      <summary id="table-h">All 40 decisions, call by call</summary>
+      <div class="tbl">
+        <table>
+          <thead><tr><th class="r">#</th><th>Complaint</th><th>Branch</th><th class="r">Jev</th><th class="r">Haiku 4.5</th><th>Jev top cause</th><th>Haiku top cause</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </details>
+  </section>
+
+  <footer id="method"></footer>
+</div>
+<div id="tip" hidden role="status"></div>
+
+<script id="bench" type="application/json">{"measured_at_utc":"2026-10-02 12:56 UTC","where":"rieLaptop, Avtica office, Makati (each call includes a fresh HTTPS connection)","models":{"jev":"jev-1.13.0","llm":"claude-haiku-4-5 via OpenCode Zen"},"questions_per_call":8,"prices_per_mtok":{"jev_in":0.042,"jev_out":0.0,"llm_in":1.0,"llm_out":5.0},"items":[{"i":0,"src":"review","id":61,"branch":"ALB","text":"Disappointed. App crashed at checkout and I was charged twice.","jev_top":"payment_refund","llm_top":"payment_refund"},{"i":1,"src":"review","id":1029,"branch":"BGC","text":"Hay naku. Store smells bad and floors are sticky.","jev_top":"spoiled_damaged","llm_top":"spoiled_damaged"},{"i":2,"src":"ticket","id":271,"branch":"MKT","text":"Received wrong item. Wrong brand was delivered, please replace.","jev_top":"out_of_stock","llm_top":"out_of_stock"},{"i":3,"src":"ticket","id":1001,"branch":"ALB","text":"Loyalty points issue. My points from last week's purchase were not credited.","jev_top":"loyalty","llm_top":"loyalty"},{"i":4,"src":"ticket","id":1239,"branch":"ALB","text":"In-store experience. Staff was rude when I asked for help.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":5,"src":"review","id":1591,"branch":"MAN","text":"Not again. Only one cashier open during rush hour. Long queue.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":6,"src":"ticket","id":1581,"branch":"BGC","text":"Loyalty points issue. My points from last week's purchase were not credited.","jev_top":"loyalty","llm_top":"loyalty"},{"i":7,"src":"review","id":462,"branch":"KAT","text":"Please fix this. Out of stock again. Third time this week.","jev_top":"out_of_stock","llm_top":"out_of_stock"},{"i":8,"src":"review","id":1915,"branch":"ALB","text":"Needs improvement. My points disappeared. Customer service never replied.","jev_top":"loyalty","llm_top":"loyalty"},{"i":9,"src":"ticket","id":606,"branch":"ALB","text":"Loyalty points issue. My points from last week's purchase were not credited.","jev_top":"loyalty","llm_top":"loyalty"},{"i":10,"src":"review","id":2037,"branch":"TMR","text":"Hay naku. Only one cashier open during rush hour. Long queue.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":11,"src":"review","id":82,"branch":"MAN","text":"Please fix this. Vegetables were wilted and the fish was not fresh.","jev_top":"spoiled_damaged","llm_top":"spoiled_damaged"},{"i":12,"src":"ticket","id":1108,"branch":"MKT","text":"Loyalty points issue. Triple points promo not reflected on my card.","jev_top":"loyalty","llm_top":"loyalty"},{"i":13,"src":"ticket","id":660,"branch":"BGC","text":"Missing item in my order. Two items missing from my delivery.","jev_top":"out_of_stock","llm_top":"out_of_stock"},{"i":14,"src":"review","id":1682,"branch":"PQE","text":"Not again. Rider could not find our place and cancelled.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":15,"src":"ticket","id":632,"branch":"ORT","text":"Delivery arrived late. My order came 76 minutes late and the frozen items were soft.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":16,"src":"ticket","id":548,"branch":"ALB","text":"App issue. Delivery tracking map is not loading.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":17,"src":"review","id":2300,"branch":"ERM","text":"Disappointed. Rider could not find our place and cancelled.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":18,"src":"ticket","id":1505,"branch":"BGC","text":"Received wrong item. Wrong brand was delivered, please replace.","jev_top":"out_of_stock","llm_top":"out_of_stock"},{"i":19,"src":"ticket","id":718,"branch":"PQE","text":"Promo code not working. Code SUKI100 says invalid at checkout.","jev_top":"promo","llm_top":"promo"},{"i":20,"src":"ticket","id":1045,"branch":"CUB","text":"Delivery arrived late. My order came 118 minutes late and the frozen items were soft.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":21,"src":"ticket","id":1412,"branch":"BGC","text":"Promo code not working. Discount was not applied even though I met the minimum spend.","jev_top":"promo","llm_top":"promo"},{"i":22,"src":"ticket","id":209,"branch":"MKN","text":"App issue. The app keeps logging me out.","jev_top":"loyalty","llm_top":"payment_refund"},{"i":23,"src":"ticket","id":983,"branch":"MKT","text":"Loyalty points issue. My points from last week's purchase were not credited.","jev_top":"loyalty","llm_top":"loyalty"},{"i":24,"src":"review","id":502,"branch":"BGC","text":"Hay naku. Only one cashier open during rush hour. Long queue.","jev_top":"out_of_stock","llm_top":"late_delivery"},{"i":25,"src":"review","id":376,"branch":"KAT","text":"Hay naku. Bread was stale when I bought it.","jev_top":"spoiled_damaged","llm_top":"spoiled_damaged"},{"i":26,"src":"ticket","id":737,"branch":"MKN","text":"Rider complaint. Rider left the order at the gate without calling.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":27,"src":"ticket","id":201,"branch":"ORT","text":"Payment problem. GCash payment is stuck on pending.","jev_top":"payment_refund","llm_top":"payment_refund"},{"i":28,"src":"review","id":2538,"branch":"CUB","text":"Needs improvement. Delivery was more than an hour late. Ice cream melted.","jev_top":"late_delivery","llm_top":"spoiled_damaged"},{"i":29,"src":"ticket","id":420,"branch":"PQE","text":"Promo code not working. Promo RICE30 applied the wrong amount.","jev_top":"promo","llm_top":"promo"},{"i":30,"src":"review","id":131,"branch":"CUB","text":"Disappointed. My points disappeared. Customer service never replied.","jev_top":"loyalty","llm_top":"loyalty"},{"i":31,"src":"ticket","id":862,"branch":"CUB","text":"Delivery arrived late. My order came 82 minutes late and the frozen items were soft.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":32,"src":"ticket","id":98,"branch":"BGC","text":"Rider complaint. Rider left the order at the gate without calling.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":33,"src":"ticket","id":1075,"branch":"MKT","text":"Promo code not working. Promo RICE30 applied the wrong amount.","jev_top":"promo","llm_top":"promo"},{"i":34,"src":"ticket","id":163,"branch":"ALB","text":"Received wrong item. Wrong brand was delivered, please replace.","jev_top":"out_of_stock","llm_top":"out_of_stock"},{"i":35,"src":"ticket","id":374,"branch":"MKN","text":"Delivery arrived late. Still waiting for my delivery, nobody updates me.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":36,"src":"ticket","id":1563,"branch":"BGC","text":"Refund request. Please refund my cancelled order, it's been a week.","jev_top":"payment_refund","llm_top":"payment_refund"},{"i":37,"src":"ticket","id":813,"branch":"KPT","text":"Damaged / spoiled item. Calamansi 250g was already spoiled on delivery.","jev_top":"spoiled_damaged","llm_top":"spoiled_damaged"},{"i":38,"src":"ticket","id":171,"branch":"CUB","text":"Delivery arrived late. My order came 46 minutes late and the frozen items were soft.","jev_top":"late_delivery","llm_top":"late_delivery"},{"i":39,"src":"review","id":883,"branch":"ALB","text":"Disappointed. Store smells bad and floors are sticky.","jev_top":"spoiled_damaged","llm_top":"spoiled_damaged"}],"jev_seq":[{"ms":729.0,"tokens_in":557,"tokens_out":0,"top":"payment_refund","i":0,"start_ms":0.0},{"ms":410.7,"tokens_in":556,"tokens_out":0,"top":"spoiled_damaged","i":1,"start_ms":729.6},{"ms":455.8,"tokens_in":555,"tokens_out":0,"top":"out_of_stock","i":2,"start_ms":1140.6},{"ms":1092.9,"tokens_in":561,"tokens_out":0,"top":"loyalty","i":3,"start_ms":1596.6},{"ms":807.9,"tokens_in":557,"tokens_out":0,"top":"late_delivery","i":4,"start_ms":2689.8},{"ms":479.3,"tokens_in":558,"tokens_out":0,"top":"late_delivery","i":5,"start_ms":3498.0},{"ms":507.5,"tokens_in":561,"tokens_out":0,"top":"loyalty","i":6,"start_ms":3977.7},{"ms":616.7,"tokens_in":557,"tokens_out":0,"top":"out_of_stock","i":7,"start_ms":4485.6},{"ms":580.5,"tokens_in":556,"tokens_out":0,"top":"loyalty","i":8,"start_ms":5102.6},{"ms":472.7,"tokens_in":560,"tokens_out":0,"top":"loyalty","i":9,"start_ms":5683.5},{"ms":861.6,"tokens_in":559,"tokens_out":0,"top":"late_delivery","i":10,"start_ms":6156.5},{"ms":479.7,"tokens_in":559,"tokens_out":0,"top":"spoiled_damaged","i":11,"start_ms":7018.4},{"ms":1881.5,"tokens_in":559,"tokens_out":0,"top":"loyalty","i":12,"start_ms":7498.4},{"ms":656.1,"tokens_in":556,"tokens_out":0,"top":"out_of_stock","i":13,"start_ms":9380.4},{"ms":922.0,"tokens_in":556,"tokens_out":0,"top":"late_delivery","i":14,"start_ms":10036.9},{"ms":497.4,"tokens_in":562,"tokens_out":0,"top":"late_delivery","i":15,"start_ms":10959.2},{"ms":1404.8,"tokens_in":553,"tokens_out":0,"top":"late_delivery","i":16,"start_ms":11456.9},{"ms":460.0,"tokens_in":558,"tokens_out":0,"top":"late_delivery","i":17,"start_ms":12862.0},{"ms":476.2,"tokens_in":556,"tokens_out":0,"top":"out_of_stock","i":18,"start_ms":13322.4},{"ms":695.9,"tokens_in":559,"tokens_out":0,"top":"promo","i":19,"start_ms":13798.9},{"ms":833.4,"tokens_in":564,"tokens_out":0,"top":"late_delivery","i":20,"start_ms":14495.0},{"ms":500.7,"tokens_in":561,"tokens_out":0,"top":"promo","i":21,"start_ms":15328.7},{"ms":646.5,"tokens_in":553,"tokens_out":0,"top":"loyalty","i":22,"start_ms":15829.7},{"ms":410.1,"tokens_in":560,"tokens_out":0,"top":"loyalty","i":23,"start_ms":16476.5},{"ms":465.6,"tokens_in":558,"tokens_out":0,"top":"out_of_stock","i":24,"start_ms":16886.9},{"ms":1397.2,"tokens_in":555,"tokens_out":0,"top":"spoiled_damaged","i":25,"start_ms":17352.7},{"ms":428.1,"tokens_in":556,"tokens_out":0,"top":"late_delivery","i":26,"start_ms":18750.2},{"ms":568.4,"tokens_in":554,"tokens_out":0,"top":"payment_refund","i":27,"start_ms":19178.5},{"ms":1546.9,"tokens_in":559,"tokens_out":0,"top":"late_delivery","i":28,"start_ms":19747.2},{"ms":618.7,"tokens_in":558,"tokens_out":0,"top":"promo","i":29,"start_ms":21294.3},{"ms":742.9,"tokens_in":557,"tokens_out":0,"top":"loyalty","i":30,"start_ms":21913.4},{"ms":599.1,"tokens_in":562,"tokens_out":0,"top":"late_delivery","i":31,"start_ms":22656.6},{"ms":473.1,"tokens_in":555,"tokens_out":0,"top":"late_delivery","i":32,"start_ms":23255.9},{"ms":417.5,"tokens_in":559,"tokens_out":0,"top":"promo","i":33,"start_ms":23729.2},{"ms":621.1,"tokens_in":555,"tokens_out":0,"top":"out_of_stock","i":34,"start_ms":24147.0},{"ms":586.2,"tokens_in":557,"tokens_out":0,"top":"late_delivery","i":35,"start_ms":24768.3},{"ms":412.9,"tokens_in":560,"tokens_out":0,"top":"payment_refund","i":36,"start_ms":25354.6},{"ms":537.8,"tokens_in":563,"tokens_out":0,"top":"spoiled_damaged","i":37,"start_ms":25767.7},{"ms":398.5,"tokens_in":562,"tokens_out":0,"top":"late_delivery","i":38,"start_ms":26305.7},{"ms":763.0,"tokens_in":556,"tokens_out":0,"top":"spoiled_damaged","i":39,"start_ms":26704.3}],"llm_seq":[{"ms":2689.2,"tokens_in":308,"tokens_out":104,"top":"payment_refund","i":0,"start_ms":0.0},{"ms":2555.4,"tokens_in":310,"tokens_out":104,"top":"spoiled_damaged","i":1,"start_ms":2689.5},{"ms":4817.0,"tokens_in":308,"tokens_out":100,"top":"out_of_stock","i":2,"start_ms":5245.1},{"ms":2576.7,"tokens_in":312,"tokens_out":104,"top":"loyalty","i":3,"start_ms":10062.3},{"ms":1877.4,"tokens_in":311,"tokens_out":104,"top":"late_delivery","i":4,"start_ms":12639.1},{"ms":2136.2,"tokens_in":311,"tokens_out":104,"top":"late_delivery","i":5,"start_ms":14516.6},{"ms":3058.3,"tokens_in":312,"tokens_out":104,"top":"loyalty","i":6,"start_ms":16653.0},{"ms":3043.0,"tokens_in":309,"tokens_out":104,"top":"out_of_stock","i":7,"start_ms":19711.5},{"ms":5133.1,"tokens_in":309,"tokens_out":104,"top":"loyalty","i":8,"start_ms":22754.6},{"ms":2295.7,"tokens_in":311,"tokens_out":96,"top":"loyalty","i":9,"start_ms":27887.8},{"ms":1823.1,"tokens_in":313,"tokens_out":104,"top":"late_delivery","i":10,"start_ms":30183.7},{"ms":2183.7,"tokens_in":311,"tokens_out":104,"top":"spoiled_damaged","i":11,"start_ms":32007.0},{"ms":2345.4,"tokens_in":311,"tokens_out":104,"top":"loyalty","i":12,"start_ms":34190.8},{"ms":2205.8,"tokens_in":308,"tokens_out":104,"top":"out_of_stock","i":13,"start_ms":36536.5},{"ms":2710.4,"tokens_in":309,"tokens_out":104,"top":"late_delivery","i":14,"start_ms":38742.6},{"ms":2153.9,"tokens_in":315,"tokens_out":104,"top":"late_delivery","i":15,"start_ms":41453.8},{"ms":5118.9,"tokens_in":306,"tokens_out":104,"top":"late_delivery","i":16,"start_ms":43608.3},{"ms":2363.7,"tokens_in":309,"tokens_out":104,"top":"late_delivery","i":17,"start_ms":48727.3},{"ms":2020.7,"tokens_in":309,"tokens_out":104,"top":"out_of_stock","i":18,"start_ms":51091.3},{"ms":3086.8,"tokens_in":313,"tokens_out":104,"top":"promo","i":19,"start_ms":53112.3},{"ms":1997.4,"tokens_in":316,"tokens_out":104,"top":"late_delivery","i":20,"start_ms":56199.3},{"ms":2090.3,"tokens_in":316,"tokens_out":104,"top":"promo","i":21,"start_ms":58196.9},{"ms":2212.7,"tokens_in":305,"tokens_out":104,"top":"payment_refund","i":22,"start_ms":60287.5},{"ms":2136.0,"tokens_in":311,"tokens_out":104,"top":"loyalty","i":23,"start_ms":62500.5},{"ms":2287.7,"tokens_in":312,"tokens_out":104,"top":"late_delivery","i":24,"start_ms":64636.7},{"ms":2060.4,"tokens_in":310,"tokens_out":104,"top":"spoiled_damaged","i":25,"start_ms":66924.8},{"ms":4018.1,"tokens_in":310,"tokens_out":104,"top":"late_delivery","i":26,"start_ms":68985.5},{"ms":1877.4,"tokens_in":307,"tokens_out":104,"top":"payment_refund","i":27,"start_ms":73003.9},{"ms":1954.9,"tokens_in":314,"tokens_out":104,"top":"spoiled_damaged","i":28,"start_ms":74881.5},{"ms":2757.9,"tokens_in":314,"tokens_out":104,"top":"promo","i":29,"start_ms":76836.6},{"ms":2046.8,"tokens_in":307,"tokens_out":104,"top":"loyalty","i":30,"start_ms":79594.7},{"ms":3716.8,"tokens_in":315,"tokens_out":104,"top":"late_delivery","i":31,"start_ms":81641.6},{"ms":2835.9,"tokens_in":310,"tokens_out":104,"top":"late_delivery","i":32,"start_ms":85358.7},{"ms":1912.9,"tokens_in":315,"tokens_out":104,"top":"promo","i":33,"start_ms":88194.9},{"ms":1884.3,"tokens_in":308,"tokens_out":104,"top":"out_of_stock","i":34,"start_ms":90108.1},{"ms":2025.6,"tokens_in":310,"tokens_out":104,"top":"late_delivery","i":35,"start_ms":91992.6},{"ms":5142.4,"tokens_in":314,"tokens_out":104,"top":"payment_refund","i":36,"start_ms":94018.4},{"ms":1985.0,"tokens_in":317,"tokens_out":104,"top":"spoiled_damaged","i":37,"start_ms":99161.1},{"ms":2467.3,"tokens_in":315,"tokens_out":104,"top":"late_delivery","i":38,"start_ms":101146.4},{"ms":2059.0,"tokens_in":307,"tokens_out":104,"top":"spoiled_damaged","i":39,"start_ms":103614.0}],"summary":{"jev":{"n":40,"errors":0,"p50":586.2,"p95":1404.8,"mean":686.4,"min":398.5,"max":1881.5,"total_ms":27455.9,"tokens_in":22319,"tokens_out":0,"cost_usd":0.000937,"cost_per_call":2.343e-05},"llm":{"n":40,"errors":0,"p50":2287.7,"p95":5118.9,"mean":2641.6,"min":1823.1,"max":5142.4,"total_ms":105663.2,"tokens_in":12438,"tokens_out":4148,"cost_usd":0.033178,"cost_per_call":0.00082945},"top_cause_agreement":0.925},"scaling":[{"questions":1,"p50":429.5,"samples":[429.5,1014.3,401.7,449.0,378.6,445.3],"tokens_in_avg":319},{"questions":2,"p50":481.7,"samples":[481.7,653.4,606.7,573.9,478.6,432.2],"tokens_in_avg":346},{"questions":4,"p50":488.7,"samples":[3064.8,488.7,431.2,1215.0,503.5,459.8],"tokens_in_avg":411},{"questions":8,"p50":435.7,"samples":[419.8,435.7,380.6,505.2,5892.0,440.1],"tokens_in_avg":557},{"questions":16,"p50":553.4,"samples":[415.3,421.9,680.2,1408.7,553.4,1855.6],"tokens_in_avg":685}],"burst":{"concurrency":8,"n":40,"ok":40,"wall_ms":4865.7,"per_sec":8.22,"rows":[{"start_ms":1.3,"end_ms":709.7,"ok":true},{"start_ms":1.9,"end_ms":670.8,"ok":true},{"start_ms":28.7,"end_ms":710.5,"ok":true},{"start_ms":117.8,"end_ms":711.4,"ok":true},{"start_ms":184.1,"end_ms":1747.1,"ok":true},{"start_ms":195.4,"end_ms":909.7,"ok":true},{"start_ms":270.6,"end_ms":858.8,"ok":true},{"start_ms":289.9,"end_ms":846.1,"ok":true},{"start_ms":670.8,"end_ms":1259.7,"ok":true},{"start_ms":709.7,"end_ms":1357.9,"ok":true},{"start_ms":710.5,"end_ms":1463.5,"ok":true},{"start_ms":711.4,"end_ms":1415.5,"ok":true},{"start_ms":846.1,"end_ms":2349.7,"ok":true},{"start_ms":858.8,"end_ms":3480.3,"ok":true},{"start_ms":909.7,"end_ms":1414.1,"ok":true},{"start_ms":1259.7,"end_ms":1819.7,"ok":true},{"start_ms":1357.9,"end_ms":3302.6,"ok":true},{"start_ms":1414.1,"end_ms":3367.5,"ok":true},{"start_ms":1415.6,"end_ms":3509.0,"ok":true},{"start_ms":1463.6,"end_ms":3408.3,"ok":true},{"start_ms":1747.2,"end_ms":3407.2,"ok":true},{"start_ms":1819.8,"end_ms":3827.6,"ok":true},{"start_ms":2349.7,"end_ms":3507.8,"ok":true},{"start_ms":3302.6,"end_ms":4273.8,"ok":true},{"start_ms":3367.6,"end_ms":4366.5,"ok":true},{"start_ms":3407.3,"end_ms":4302.4,"ok":true},{"start_ms":3408.3,"end_ms":3950.1,"ok":true},{"start_ms":3480.3,"end_ms":4022.6,"ok":true},{"start_ms":3507.8,"end_ms":4334.2,"ok":true},{"start_ms":3509.1,"end_ms":3985.4,"ok":true},{"start_ms":3827.6,"end_ms":4365.1,"ok":true},{"start_ms":3950.2,"end_ms":4430.7,"ok":true},{"start_ms":3985.4,"end_ms":4463.3,"ok":true},{"start_ms":4022.7,"end_ms":4431.4,"ok":true},{"start_ms":4273.8,"end_ms":4697.6,"ok":true},{"start_ms":4302.4,"end_ms":4770.7,"ok":true},{"start_ms":4334.2,"end_ms":4837.9,"ok":true},{"start_ms":4365.2,"end_ms":4841.6,"ok":true},{"start_ms":4366.6,"end_ms":4864.8,"ok":true},{"start_ms":4430.7,"end_ms":4811.3,"ok":true}]},"burst_llm":{"concurrency":8,"n":40,"ok":40,"wall_ms":13413.4,"per_sec":2.98,"rows":[{"start_ms":0.8,"end_ms":2514.1,"ok":true},{"start_ms":3.2,"end_ms":5871.5,"ok":true},{"start_ms":4.3,"end_ms":2473.5,"ok":true},{"start_ms":4.7,"end_ms":2621.7,"ok":true},{"start_ms":5.1,"end_ms":2381.8,"ok":true},{"start_ms":5.5,"end_ms":2809.8,"ok":true},{"start_ms":5.9,"end_ms":2313.7,"ok":true},{"start_ms":6.4,"end_ms":2219.8,"ok":true},{"start_ms":2219.8,"end_ms":4084.1,"ok":true},{"start_ms":2313.7,"end_ms":4963.7,"ok":true},{"start_ms":2381.9,"end_ms":4239.6,"ok":true},{"start_ms":2473.6,"end_ms":4385.6,"ok":true},{"start_ms":2514.1,"end_ms":5193.2,"ok":true},{"start_ms":2621.7,"end_ms":4760.1,"ok":true},{"start_ms":2809.8,"end_ms":5161.9,"ok":true},{"start_ms":4084.1,"end_ms":6889.3,"ok":true},{"start_ms":4239.6,"end_ms":6844.1,"ok":true},{"start_ms":4385.6,"end_ms":6888.5,"ok":true},{"start_ms":4760.1,"end_ms":7071.7,"ok":true},{"start_ms":4963.7,"end_ms":7289.9,"ok":true},{"start_ms":5162.0,"end_ms":7254.7,"ok":true},{"start_ms":5193.3,"end_ms":8090.8,"ok":true},{"start_ms":5871.6,"end_ms":8219.1,"ok":true},{"start_ms":6844.2,"end_ms":8861.8,"ok":true},{"start_ms":6888.5,"end_ms":9850.3,"ok":true},{"start_ms":6889.3,"end_ms":8755.1,"ok":true},{"start_ms":7071.7,"end_ms":8934.6,"ok":true},{"start_ms":7254.8,"end_ms":9212.1,"ok":true},{"start_ms":7290.0,"end_ms":10292.2,"ok":true},{"start_ms":8090.8,"end_ms":10156.2,"ok":true},{"start_ms":8219.2,"end_ms":10257.1,"ok":true},{"start_ms":8755.2,"end_ms":10705.2,"ok":true},{"start_ms":8861.8,"end_ms":11909.8,"ok":true},{"start_ms":8934.6,"end_ms":11531.2,"ok":true},{"start_ms":9212.1,"end_ms":11869.4,"ok":true},{"start_ms":9850.3,"end_ms":11766.9,"ok":true},{"start_ms":10156.2,"end_ms":12275.6,"ok":true},{"start_ms":10257.1,"end_ms":12230.8,"ok":true},{"start_ms":10292.2,"end_ms":13412.5,"ok":true},{"start_ms":10705.2,"end_ms":12833.0,"ok":true}]},"full_run":{"seconds":64.7,"input_tokens":388465,"cost_usd":0.016316,"fallbacks":0,"items":694}}</script>
+<script>
+(function () {
+  const D = JSON.parse(document.getElementById('bench').textContent);
+  const S = D.summary;
+  const NS = 'http://www.w3.org/2000/svg';
+  const fmtMs = (v) => (v >= 1000 ? (v / 1000).toFixed(2) + ' s' : Math.round(v) + ' ms');
+  const fmtS = (ms) => (ms / 1000).toFixed(1) + ' s';
+  const usd = (v) => (v < 0.001 ? '$' + v.toFixed(6) : '$' + v.toFixed(4));
+  const comma = (v) => Math.round(v).toLocaleString('en-US');
+  const CAUSE = { late_delivery: 'Late delivery', spoiled_damaged: 'Spoiled / damaged', out_of_stock: 'Out of stock',
+    loyalty: 'Loyalty points', promo: 'Promo code', payment_refund: 'Payment / refund' };
+  const el = (tag, attrs, parent) => {
+    const n = document.createElementNS(NS, tag);
+    for (const k in attrs) n.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(n);
+    return n;
+  };
+  const html = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const niceMax = (v) => { const p = Math.pow(10, Math.floor(Math.log10(v))); for (const m of [1, 1.5, 2, 2.5, 3, 4, 5, 6, 8, 10]) if (m * p >= v) return m * p; return 10 * p; };
+
+  // ---------------- header ----------------
+  const ratio = S.llm.p50 / S.jev.p50;
+  document.getElementById('eyebrow').textContent = `Camp Run · Suki Pulse · measured ${D.measured_at_utc}`;
+  const lede = document.getElementById('lede');
+  lede.textContent = '';
+  lede.append('Forty real Suki Mart complaints, eight questions each, one laptop on the venue Wi-Fi. ');
+  const b = html('b', null, `Jev decided in ${fmtMs(S.jev.p50)} at the median. Claude Haiku 4.5 took ${fmtMs(S.llm.p50)}.`);
+  lede.append(b, ` That is ${ratio.toFixed(1)}x faster, at ${Math.round(S.llm.cost_per_call / S.jev.cost_per_call)}x lower cost per decision.`);
+
+  // ---------------- race ----------------
+  const lanesEl = document.getElementById('lanes');
+  const verdict = document.getElementById('verdict');
+  const lanesFor = (mode) => {
+    if (mode === 'seq') return [
+      { key: 'jev', name: 'Jev', sub: `${D.models.jev}, one call at a time`, times: D.jev_seq.map((r) => (r.ms != null ? r.start_ms + r.ms : Infinity)) },
+      { key: 'llm', name: 'Claude Haiku 4.5', sub: 'via OpenCode Zen, one call at a time', times: D.llm_seq.map((r) => (r.ms != null ? r.start_ms + r.ms : Infinity)) }
+    ];
+    const L = [{ key: 'jev', name: 'Jev', sub: `${D.models.jev}, 8 calls open`, times: D.burst.rows.map((r) => (r.ok ? r.end_ms : Infinity)) }];
+    if (D.burst_llm) L.push({ key: 'llm', name: 'Claude Haiku 4.5', sub: 'via OpenCode Zen, 8 calls open', times: D.burst_llm.rows.map((r) => (r.ok ? r.end_ms : Infinity)) });
+    return L;
+  };
+  let mode = 'seq', speed = 1, raf = 0, lanes = [];
+
+  function build() {
+    lanesEl.textContent = '';
+    lanes = lanesFor(mode).map((L) => {
+      const row = html('div', 'lane'); row.dataset.key = L.key;
+      const name = html('div', 'lane-name');
+      const strong = html('strong');
+      const key = html('i', 'key'); key.style.background = `var(--${L.key})`;
+      strong.append(key, document.createTextNode(L.name));
+      name.append(strong, html('span', null, L.sub));
+      const cells = html('div', 'cells');
+      cells.setAttribute('role', 'img');
+      const done = L.times.filter(Number.isFinite);
+      const finish = Math.max(...done);
+      cells.setAttribute('aria-label', `${L.name}: ${done.length} of ${L.times.length} decisions, last one at ${fmtS(finish)}`);
+      const cellEls = L.times.map(() => { const c = html('div', 'cell'); cells.appendChild(c); return c; });
+      const clock = html('div', 'clock');
+      const t = html('div', 't num'); const s = html('div', 's');
+      clock.append(t, s);
+      row.append(name, cells, clock);
+      lanesEl.appendChild(row);
+      return { ...L, cellEls, t, s, finish, count: done.length };
+    });
+  }
+
+  function paint(now) {
+    let allDone = true;
+    for (const L of lanes) {
+      let n = 0;
+      L.times.forEach((tm, i) => { const on = tm <= now; L.cellEls[i].classList.toggle('on', on); if (on) n++; });
+      const finished = now >= L.finish;
+      if (!finished) allDone = false;
+      L.t.textContent = fmtS(Math.min(now, L.finish));
+      L.s.textContent = finished ? `all ${L.count} decided` : `${n} of ${L.times.length} decided`;
+    }
+    const [a, z] = lanes;
+    if (z) {
+      const leader = a.finish <= z.finish ? a : z, other = leader === a ? z : a;
+      if (now >= leader.finish) {
+        const otherDone = other.times.filter((tm) => tm <= leader.finish).length;
+        verdict.textContent = '';
+        verdict.append(html('b', null, `${leader.name} finished all ${leader.count} in ${fmtS(leader.finish)}.`),
+          ` By then ${other.name} had decided ${otherDone}` + (now >= other.finish ? `, and it finished at ${fmtS(other.finish)} (${(other.finish / leader.finish).toFixed(1)}x longer).` : '.'));
+      } else verdict.textContent = 'Racing at ' + (speed === 1 ? 'real speed' : '4x speed') + '. Each square is one complaint decided.';
+    }
+    return allDone;
+  }
+
+  function rest() { cancelAnimationFrame(raf); raf = 0; build(); paint(Infinity); document.getElementById('run').textContent = 'Run the race'; }
+
+  function run() {
+    cancelAnimationFrame(raf); build(); paint(0);
+    document.getElementById('run').textContent = 'Restart';
+    const t0 = performance.now();
+    const step = () => {
+      const now = (performance.now() - t0) * speed;
+      if (paint(now)) { raf = 0; document.getElementById('run').textContent = 'Run again'; return; }
+      raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+  }
+
+  const setPressed = (ids, on) => ids.forEach((id) => document.getElementById(id).setAttribute('aria-pressed', String(id === on)));
+  document.getElementById('mode-seq').onclick = () => { mode = 'seq'; setPressed(['mode-seq', 'mode-par'], 'mode-seq'); rest(); };
+  document.getElementById('mode-par').onclick = () => { mode = 'par'; setPressed(['mode-seq', 'mode-par'], 'mode-par'); rest(); };
+  document.getElementById('speed-1').onclick = () => { speed = 1; setPressed(['speed-1', 'speed-4'], 'speed-1'); };
+  document.getElementById('speed-4').onclick = () => { speed = 4; setPressed(['speed-1', 'speed-4'], 'speed-4'); };
+  document.getElementById('run').onclick = run;
+  rest();
+
+  // ---------------- tiles ----------------
+  const tiles = document.getElementById('tiles');
+  const tile = (label, value, sub) => { const t = html('div', 'tile'); t.append(html('div', 'label', label), html('div', 'value', value), html('div', 'sub', sub)); tiles.appendChild(t); };
+  tile('Jev, median per decision', fmtMs(S.jev.p50), `p95 ${fmtMs(S.jev.p95)} · Haiku 4.5 median ${fmtMs(S.llm.p50)}`);
+  tile('Faster per decision', ratio.toFixed(1) + 'x', `median vs median, ${S.jev.n} calls each`);
+  tile('Cost per decision', usd(S.jev.cost_per_call), `Haiku 4.5: ${usd(S.llm.cost_per_call)} (${Math.round(S.llm.cost_per_call / S.jev.cost_per_call)}x more)`);
+  tile('With 8 calls open', D.burst.per_sec.toFixed(1) + ' / s', D.burst_llm ? `Haiku 4.5: ${D.burst_llm.per_sec.toFixed(1)} / s` : `${D.burst.n} decisions in ${fmtS(D.burst.wall_ms)}`);
+
+  // ---------------- tooltip ----------------
+  const tip = document.getElementById('tip');
+  function showTip(evt, color, value, label, extra) {
+    tip.textContent = '';
+    const v = html('div', 'v'); const k = html('i'); k.style.background = color; v.append(k, document.createTextNode(value));
+    tip.append(v, html('div', 'l', label));
+    if (extra) tip.append(html('div', 'x', extra));
+    tip.hidden = false;
+    let x, y;
+    if (evt && evt.clientX != null && evt.type.startsWith('pointer')) { x = evt.clientX; y = evt.clientY; }
+    else { const r = evt.currentTarget.getBoundingClientRect(); x = r.left + r.width / 2; y = r.top; }
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    tip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x + 14)) + 'px';
+    tip.style.top = Math.max(8, y - h - 12) + 'px';
+  }
+  const hideTip = () => { tip.hidden = true; };
+  function bindTip(node, fn) {
+    node.setAttribute('tabindex', '0');
+    node.classList.add('mark');
+    const on = (e) => fn(e);
+    node.addEventListener('pointerenter', on); node.addEventListener('pointermove', on);
+    node.addEventListener('focus', on); node.addEventListener('pointerleave', hideTip); node.addEventListener('blur', hideTip);
+  }
+  window.addEventListener('scroll', hideTip, { passive: true });
+
+  const legend = (id, items) => { const L = document.getElementById(id); items.forEach(([name, key]) => { const s = html('span'); const i = html('i'); i.style.background = `var(--${key})`; s.append(i, document.createTextNode(name)); L.appendChild(s); }); };
+
+  // ---------------- chart: latency strip ----------------
+  (function () {
+    legend('legend-dist', [['Jev', 'jev'], ['Claude Haiku 4.5', 'llm']]);
+    const W = 520, H = 210, m = { l: 92, r: 18, t: 18, b: 34 };
+    const all = D.jev_seq.concat(D.llm_seq).filter((r) => r.ms != null).map((r) => r.ms);
+    const xMax = niceMax(Math.max(...all));
+    const x = (v) => m.l + (v / xMax) * (W - m.l - m.r);
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': `Latency per decision. Jev median ${fmtMs(S.jev.p50)}, Haiku median ${fmtMs(S.llm.p50)}.` });
+    const ticks = 5;
+    for (let i = 0; i <= ticks; i++) {
+      const v = (xMax / ticks) * i, X = x(v);
+      el('line', { x1: X, x2: X, y1: m.t, y2: H - m.b, class: 'grid-line' }, svg);
+      el('text', { x: X, y: H - m.b + 18, 'text-anchor': 'middle', class: 'tick' }, svg).textContent = v === 0 ? '0' : (v / 1000).toFixed(v % 1000 ? 1 : 0) + ' s';
+    }
+    el('line', { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, class: 'axis-line' }, svg);
+    const rows = [['jev', 'Jev', D.jev_seq, S.jev], ['llm', 'Haiku 4.5', D.llm_seq, S.llm]];
+    const bandH = (H - m.t - m.b) / rows.length;
+    rows.forEach(([key, name, data, st], ri) => {
+      const cy = m.t + bandH * ri + bandH / 2;
+      el('text', { x: m.l - 12, y: cy + 4, 'text-anchor': 'end', class: 'annot-strong' }, svg).textContent = name;
+      [['p50', st.p50], ['p95', st.p95]].forEach(([lab, v], k) => {
+        const X = x(v);
+        el('line', { x1: X, x2: X, y1: cy - bandH * 0.38, y2: cy + bandH * 0.38, stroke: 'var(--ink-2)', 'stroke-width': k ? 1 : 2 }, svg);
+        // p50 label above the band, p95 below it, so close values never collide
+        el('text', { x: X + 4, y: k ? cy + bandH * 0.38 + 2 : cy - bandH * 0.38 + 7, class: 'annot' }, svg).textContent = `${lab} ${fmtMs(v)}`;
+      });
+      data.forEach((r, i) => {
+        if (r.ms == null) return;
+        const jitter = (((i * 37) % 11) - 5) * (bandH * 0.05);
+        const g = el('g', {}, svg);
+        el('circle', { cx: x(r.ms), cy: cy + jitter, r: 12, fill: 'transparent' }, g);
+        el('circle', { cx: x(r.ms), cy: cy + jitter, r: 4.5, fill: `var(--${key})`, stroke: 'var(--surface)', 'stroke-width': 2, class: 'vis' }, g);
+        const it = D.items[i];
+        bindTip(g, (e) => showTip(e, `var(--${key})`, fmtMs(r.ms), `${name} · complaint ${i + 1} (${it.branch})`, it.text));
+      });
+    });
+    document.getElementById('chart-dist').appendChild(svg);
+  })();
+
+  // ---------------- chart: question scaling ----------------
+  (function () {
+    const pts = D.scaling.filter((p) => p.p50 != null);
+    const W = 520, H = 230, m = { l: 56, r: 24, t: 26, b: 40 };
+    // Scale to the medians; the odd slow network call would otherwise flatten the line into the axis.
+    const yMax = niceMax(Math.max(...pts.map((p) => p.p50)) * 2.2);
+    const outliers = pts.flatMap((p) => p.samples).filter((s) => s > yMax).length;
+    const xs = pts.map((p) => p.questions);
+    const x = (q) => m.l + (Math.log2(q) / Math.log2(xs[xs.length - 1])) * (W - m.l - m.r);
+    const y = (v) => H - m.b - (v / yMax) * (H - m.t - m.b);
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': `Jev median latency from ${pts[0].questions} to ${pts[pts.length - 1].questions} questions per call: ${fmtMs(pts[0].p50)} to ${fmtMs(pts[pts.length - 1].p50)}.` });
+    for (let i = 0; i <= 4; i++) {
+      const v = (yMax / 4) * i, Y = y(v);
+      el('line', { x1: m.l, x2: W - m.r, y1: Y, y2: Y, class: 'grid-line' }, svg);
+      el('text', { x: m.l - 8, y: Y + 4, 'text-anchor': 'end', class: 'tick' }, svg).textContent = v === 0 ? '0' : (v / 1000).toFixed(1) + ' s';
+    }
+    el('line', { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, class: 'axis-line' }, svg);
+    pts.forEach((p) => el('text', { x: x(p.questions), y: H - m.b + 18, 'text-anchor': 'middle', class: 'tick' }, svg).textContent = p.questions);
+    el('text', { x: (m.l + W - m.r) / 2, y: H - 4, 'text-anchor': 'middle', class: 'tick' }, svg).textContent = 'questions per call';
+    pts.forEach((p) => p.samples.forEach((s, k) => el('circle', { cx: x(p.questions) + ((k % 3) - 1) * 5, cy: y(Math.min(s, yMax)), r: 2.5, fill: 'var(--jev)', 'fill-opacity': 0.28 }, svg)));
+    if (outliers) el('text', { x: W - m.r, y: m.t - 10, 'text-anchor': 'end', class: 'tick' }, svg).textContent = `${outliers} slow call${outliers > 1 ? 's' : ''} above ${(yMax / 1000).toFixed(1)} s pinned to the top edge`;
+    el('polyline', { points: pts.map((p) => `${x(p.questions)},${y(p.p50)}`).join(' '), fill: 'none', stroke: 'var(--jev)', 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, svg);
+    pts.forEach((p, i) => {
+      const g = el('g', {}, svg);
+      el('circle', { cx: x(p.questions), cy: y(p.p50), r: 13, fill: 'transparent' }, g);
+      el('circle', { cx: x(p.questions), cy: y(p.p50), r: 5, fill: 'var(--jev)', stroke: 'var(--surface)', 'stroke-width': 2, class: 'vis' }, g);
+      const cost = (p.tokens_in_avg * D.prices_per_mtok.jev_in) / 1e6;
+      bindTip(g, (e) => showTip(e, 'var(--jev)', fmtMs(p.p50), `${p.questions} question${p.questions > 1 ? 's' : ''} per call, median of ${p.samples.length}`, `~${comma(p.tokens_in_avg)} input tokens · ${usd(cost)} per call`));
+      if (i === 0 || i === pts.length - 1) {
+        el('text', { x: x(p.questions) + (i ? -6 : 6), y: y(p.p50) - 12, 'text-anchor': i ? 'end' : 'start', class: 'annot-strong' }, svg).textContent = `${p.questions}q: ${fmtMs(p.p50)}`;
+      }
+    });
+    document.getElementById('chart-scale').appendChild(svg);
+  })();
+
+  // ---------------- chart: burst gantt ----------------
+  (function () {
+    const runs = [['jev', 'Jev', D.burst]];
+    if (D.burst_llm) runs.push(['llm', 'Claude Haiku 4.5', D.burst_llm]);
+    legend('legend-burst', runs.map(([k, n]) => [n, k]));
+    const tMax = niceMax(Math.max(...runs.map(([, , r]) => r.wall_ms)));
+    const W = 1000, rowH = 4.5, gap = 1.5, m = { l: 150, r: 110, t: 8, b: 34 };
+    const blockH = D.burst.n * (rowH + gap);
+    const H = m.t + runs.length * (blockH + 22) + m.b;
+    const x = (v) => m.l + (v / tMax) * (W - m.l - m.r);
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': runs.map(([, n, r]) => `${n}: ${r.n} calls with ${r.concurrency} open finished in ${fmtS(r.wall_ms)}`).join('. ') });
+    for (let i = 0; i <= 5; i++) {
+      const v = (tMax / 5) * i, X = x(v);
+      el('line', { x1: X, x2: X, y1: m.t, y2: H - m.b, class: 'grid-line' }, svg);
+      el('text', { x: X, y: H - m.b + 18, 'text-anchor': 'middle', class: 'tick' }, svg).textContent = (v / 1000).toFixed(v % 1000 ? 1 : 0) + ' s';
+    }
+    el('line', { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, class: 'axis-line' }, svg);
+    runs.forEach(([key, name, r], ri) => {
+      const top = m.t + ri * (blockH + 22);
+      el('text', { x: m.l - 12, y: top + blockH / 2 + 4, 'text-anchor': 'end', class: 'annot-strong' }, svg).textContent = name;
+      r.rows.forEach((row, i) => {
+        if (!row.ok) return;
+        const g = el('g', {}, svg);
+        const Y = top + i * (rowH + gap);
+        el('rect', { x: x(row.start_ms), y: Y - 2, width: Math.max(2, x(row.end_ms) - x(row.start_ms)), height: rowH + 4, fill: 'transparent' }, g);
+        el('rect', { x: x(row.start_ms), y: Y, width: Math.max(2, x(row.end_ms) - x(row.start_ms)), height: rowH, rx: 1.5, fill: `var(--${key})`, class: 'vis' }, g);
+        bindTip(g, (e) => showTip(e, `var(--${key})`, fmtMs(row.end_ms - row.start_ms), `${name} · call ${i + 1}`, `started ${fmtS(row.start_ms)}, done ${fmtS(row.end_ms)}`));
+      });
+      el('line', { x1: x(r.wall_ms), x2: x(r.wall_ms), y1: top - 2, y2: top + blockH + 2, stroke: 'var(--ink-2)', 'stroke-width': 1.5 }, svg);
+      el('text', { x: x(r.wall_ms) + 8, y: top + blockH / 2 + 4, class: 'annot-strong' }, svg).textContent = `all ${r.n} in ${fmtS(r.wall_ms)}`;
+    });
+    document.getElementById('chart-burst').appendChild(svg);
+    if (!D.burst_llm) document.getElementById('burst-sub').textContent += ' Haiku was not run in parallel.';
+  })();
+
+  // ---------------- full suki run + claims ----------------
+  if (D.full_run) {
+    const f = D.full_run;
+    document.getElementById('fullrun').textContent = `In production use, Suki Pulse sent all ${comma(f.items)} open complaints across 12 branches through Jev in ${f.seconds} s (${comma(f.input_tokens)} input tokens, ${usd(f.cost_usd)} in total, ${f.fallbacks} fallbacks).`;
+  }
+  const claims = [
+    ['TypeSafe (vendor)', 'Published range for a decision', '70 to 500 ms', 'up to 200x faster than LLMs', 'https://madewithjev.com'],
+    ['LiteLLM benchmark, Sep 18 2026', '240 routing calls, 1 at a time', 'p50 126.81 ms', 'Haiku p50 688.40 ms (5.43x)', 'https://docs.litellm.ai/blog/jev-auto-router-benchmark'],
+    ['1kpapers on madewithjev', '1,018 research papers classified', '256 ms median', '$0.08 in total', 'https://madewithjev.com'],
+    ['This page', `${S.jev.n} Suki complaints, Makati Wi-Fi`, `p50 ${fmtMs(S.jev.p50)}`, `Haiku p50 ${fmtMs(S.llm.p50)} (${ratio.toFixed(2)}x)`, null]
+  ];
+  const cb = document.getElementById('claims');
+  claims.forEach(([src, setup, jev, cmp, href]) => {
+    const tr = document.createElement('tr'); if (!href) tr.className = 'ours';
+    const td0 = document.createElement('td');
+    if (href) { const a = html('a', null, src); a.href = href; a.target = '_blank'; a.rel = 'noopener'; td0.appendChild(a); } else td0.textContent = src;
+    tr.append(td0, html('td', null, setup), html('td', 'r', jev), html('td', 'r', cmp));
+    cb.appendChild(tr);
+  });
+  document.getElementById('claims-note').textContent = `Our absolute numbers sit above the published ones because every call here left a laptop on event Wi-Fi in Makati, went through Cloudflare's Singapore edge, and opened a fresh HTTPS connection. Haiku paid the same network cost, so the ratio is the fair comparison. Jev and Haiku picked the same top cause on ${Math.round(S.top_cause_agreement * 100)}% of complaints; that is agreement between two models, not accuracy.`;
+
+  // ---------------- table ----------------
+  const tb = document.getElementById('rows');
+  D.items.forEach((it, i) => {
+    const tr = document.createElement('tr');
+    const j = D.jev_seq[i], l = D.llm_seq[i];
+    tr.append(html('td', 'r', String(i + 1)), html('td', null, it.text), html('td', null, it.branch),
+      html('td', 'r', j.ms != null ? fmtMs(j.ms) : 'error'), html('td', 'r', l.ms != null ? fmtMs(l.ms) : 'error'),
+      html('td', null, CAUSE[it.jev_top] || '-'), html('td', null, CAUSE[it.llm_top] || '-'));
+    tb.appendChild(tr);
+  });
+
+  // ---------------- method ----------------
+  const foot = document.getElementById('method');
+  [
+    `Measured ${D.measured_at_utc} from ${D.where}.`,
+    `Models: ${D.models.jev} (TypeSafe System One) and ${D.models.llm}. Both got the same complaint text and the same eight questions: six root causes, churn risk, and urgency. Jev answers them as typed questions; Haiku was asked to reply with one JSON object.`,
+    `Prices: Jev $${D.prices_per_mtok.jev_in} per million input tokens, output free. Haiku 4.5 $${D.prices_per_mtok.llm_in.toFixed(2)} in and $${D.prices_per_mtok.llm_out.toFixed(2)} out per million tokens (OpenCode Zen list prices).`,
+    'Data: Suki Mart is the fictional sandbox from the Camp Run starter kit. Built for the DEVCON x Avtica x Amihan Hermes Agent hackathon.'
+  ].forEach((t) => foot.appendChild(html('p', null, t)));
+})();
+</script>

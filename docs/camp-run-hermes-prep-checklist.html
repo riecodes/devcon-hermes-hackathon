@@ -1,0 +1,347 @@
+<title>Camp Run Hermes Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; status chips and a sticky progress meter carry state; commands are first-class mono blocks with copy. */
+:root {
+  --bg: #f2f3f6; --surface: #ffffff; --ink: #1b1f2a; --muted: #586072; --line: #dcdfe7;
+  --brass: #8f6410; --brass-soft: #f4e7c9; --ok: #2c7a4c; --ok-soft: #dcefe3;
+  --warn: #9c5200; --warn-soft: #f8e5cf; --code-bg: #eceef4;
+  --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12141a; --surface: #1a1d25; --ink: #e7e9ef; --muted: #9ba2b3; --line: #2b2f3b;
+  --brass: #e2b45c; --brass-soft: #3a2f18; --ok: #72c693; --ok-soft: #1c3226;
+  --warn: #f0a650; --warn-soft: #3a2a17; --code-bg: #0e1015; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12141a; --surface: #1a1d25; --ink: #e7e9ef; --muted: #9ba2b3; --line: #2b2f3b;
+  --brass: #e2b45c; --brass-soft: #3a2f18; --ok: #72c693; --ok-soft: #1c3226;
+  --warn: #f0a650; --warn-soft: #3a2a17; --code-bg: #0e1015; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font: 15px/1.6 var(--f-body); }
+.wrap { max-width: 780px; margin: 0 auto; padding-inline: 18px; padding-block: 28px 64px; display: grid; gap: 40px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(2rem, 6vw, 3rem); font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 1.45rem; font-weight: 800; }
+h3 { font-size: 1.02rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--brass); text-underline-offset: 2px; }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+.eyebrow { font: 500 0.74rem/1.3 var(--f-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--brass); }
+.muted { color: var(--muted); }
+section { display: grid; gap: 16px; min-width: 0; }
+.lede { font-size: 1.06rem; max-width: 62ch; }
+
+/* header */
+header { display: grid; gap: 14px; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 0.9rem; color: var(--muted); }
+.meta b { color: var(--ink); font-weight: 600; }
+.glyph { font-family: var(--f-display); color: var(--brass); }
+
+/* progress */
+.progress { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 2; background: var(--bg); padding-block: 10px; border-bottom: 1px solid var(--line); display: grid; gap: 6px; }
+.progress-row { display: flex; justify-content: space-between; gap: 12px; font-size: 0.88rem; }
+.progress-row span:last-child { font-variant-numeric: tabular-nums; font-family: var(--f-mono); }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--brass); transition: width .25s ease; }
+
+/* what hermes is */
+.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 10px; }
+.part { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: grid; gap: 4px; align-content: start; }
+.part .eyebrow { color: var(--muted); }
+
+/* tables */
+.tbl { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+th { font: 500 0.72rem/1.3 var(--f-mono); letter-spacing: 0.07em; text-transform: uppercase; color: var(--muted); }
+td code { white-space: nowrap; }
+
+/* done log */
+.log { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; border-top: 1px solid var(--line); }
+.log li { display: grid; grid-template-columns: 92px 1fr; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.log li > div { min-width: 0; display: grid; gap: 3px; }
+.chip { justify-self: start; align-self: start; font: 500 0.7rem/1 var(--f-mono); letter-spacing: 0.06em; text-transform: uppercase; padding: 5px 7px; border-radius: 4px; white-space: nowrap; }
+.chip.ok { background: var(--ok-soft); color: var(--ok); }
+.chip.warn { background: var(--warn-soft); color: var(--warn); }
+.chip.wait { background: var(--brass-soft); color: var(--brass); }
+
+/* code */
+code { font-family: var(--f-mono); font-size: 0.86em; background: var(--code-bg); padding: 1px 5px; border-radius: 4px; overflow-wrap: anywhere; }
+.cmd { display: flex; align-items: stretch; background: var(--code-bg); border: 1px solid var(--line); border-radius: 6px; min-width: 0; }
+.cmd pre { margin: 0; padding: 9px 12px; font: 0.86rem/1.5 var(--f-mono); overflow-x: auto; flex: 1; min-width: 0; white-space: pre; }
+.cmd button { flex: none; font: 500 0.74rem var(--f-mono); color: var(--muted); background: transparent; border: 0; border-left: 1px solid var(--line); padding: 0 12px; cursor: pointer; }
+.cmd button:hover { color: var(--ink); }
+
+/* checklist */
+.group { display: grid; gap: 10px; }
+.group-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; counter-reset: step; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 14px; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; }
+.step input { width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--brass); cursor: pointer; }
+.step .body { min-width: 0; display: grid; gap: 8px; }
+.step label { cursor: pointer; display: flex; gap: 8px; align-items: baseline; }
+.numbered .step label::before { counter-increment: step; content: counter(step); font: 500 0.78rem var(--f-mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.step.done { background: transparent; }
+.step.done h3 { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }
+.step ul { margin: 0; padding-left: 18px; display: grid; gap: 3px; }
+.note { font-size: 0.88rem; color: var(--muted); }
+.warnline { font-size: 0.88rem; color: var(--warn); }
+.reset { justify-self: start; font: 500 0.78rem var(--f-mono); color: var(--muted); background: transparent; border: 1px solid var(--line); border-radius: 5px; padding: 6px 10px; cursor: pointer; }
+
+/* gotchas */
+.gotchas { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+
+footer { font-size: 0.85rem; color: var(--muted); display: grid; gap: 4px; }
+
+@media (max-width: 520px) {
+  .log li { grid-template-columns: 1fr; gap: 6px; }
+}
+@media (prefers-reduced-motion: reduce) { .bar i { transition: none; } }
+</style>
+
+<div class="wrap">
+
+<header>
+  <p class="eyebrow"><span class="glyph">☤</span> DEVCON Manila · Avtica · Amihan</p>
+  <h1>Camp Run Hermes Prep</h1>
+  <p class="lede">Hermes Agent setup on rieLaptop for the first Hermes hackathon in the Philippines: what Hermes is, what is already installed, and the steps left before you walk in.</p>
+  <div class="meta">
+    <span><b>Fri, Oct 2, 2026</b></span>
+    <span>Registration <b>3:00 PM</b></span>
+    <span>Build <b>4:00 PM to 12 MN</b></span>
+    <span>Avtica AI, Salcedo Village, Makati</span>
+  </div>
+</header>
+
+<section aria-labelledby="what">
+  <p class="eyebrow">The tool</p>
+  <h2 id="what">What Hermes is</h2>
+  <p>Hermes Agent is an open-source AI agent from Nous Research, released in February 2026. A chatbot only answers. Hermes takes actions: it runs terminal commands, edits files, browses the web, and calls outside services, then remembers what worked so it gets better at your tasks over time.</p>
+  <p>Everything lives in one backend folder, <code>~/.hermes</code>. The terminal, the desktop app and a Telegram bot are three ways into that same agent, so a model, skill or connector you set up once shows up in all of them.</p>
+  <div class="parts">
+    <div class="part"><span class="eyebrow">Brain</span><h3>Model provider</h3><p class="muted">Any LLM: Claude, GPT via ChatGPT sign-in, Gemini, OpenRouter, local Ollama. Swap it with <code>hermes model</code>.</p></div>
+    <div class="part"><span class="eyebrow">Hands</span><h3>Built-in tools</h3><p class="muted">Terminal, files, browser, web search, code execution, vision, cron jobs.</p></div>
+    <div class="part"><span class="eyebrow">Memory</span><h3>Memory and skills</h3><p class="muted">Persistent memory plus skills: saved procedures it reuses and writes for itself. 53 come built in.</p></div>
+    <div class="part"><span class="eyebrow">Connectors</span><h3>MCP servers</h3><p class="muted">Plug-ins for outside services. Tonight: GitHub, Vercel, Neon, Google Workspace.</p></div>
+    <div class="part"><span class="eyebrow">Doors</span><h3>CLI, desktop, Telegram</h3><p class="muted">The gateway puts the same agent in Telegram, so it can work from your phone.</p></div>
+  </div>
+  <div class="tbl">
+    <table>
+      <thead><tr><th>Path in Ubuntu</th><th>What lives there</th></tr></thead>
+      <tbody>
+        <tr><td><code>~/.hermes/config.yaml</code></td><td>Settings only. Change them with <code>hermes config set KEY VALUE</code>.</td></tr>
+        <tr><td><code>~/.hermes/.env</code></td><td>API keys and tokens only. Never put secrets in config.yaml.</td></tr>
+        <tr><td><code>~/.hermes/skills/</code></td><td>Skills, including the built-in google-workspace one.</td></tr>
+        <tr><td><code>~/.hermes/logs/</code></td><td>Gateway and error logs.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="done">
+  <p class="eyebrow">Already on rieLaptop</p>
+  <h2 id="done">What we did</h2>
+  <ul class="log">
+    <li><span class="chip ok">Checked</span><div><h3>Laptop inventory</h3><p class="muted">16 GB RAM, 57 GB free disk. WSL2 with Ubuntu 24.04.4 LTS, installed by <code>wsl --install</code> (no Microsoft Store copy needed). git, GitHub CLI and Vercel CLI are signed in as riecodes. Node 22, Python 3.11.</p></div></li>
+    <li><span class="chip ok">Installed</span><div><h3>Hermes Agent v0.21.5 in Ubuntu</h3><p class="muted">Official installer, user-local, no sudo. The first run failed: Ubuntu was missing <code>libatomic1</code>, so Hermes's bundled Node could not start. Installed that library and the rerun finished cleanly.</p></div></li>
+    <li><span class="chip ok">Checked</span><div><h3>Health check</h3><p class="muted"><code>hermes doctor</code> passes the core tools (terminal, files, browser, memory, web search, desktop UI). Remaining warnings are optional platforms and npm advisories inside Hermes's own packages, left as is.</p></div></li>
+    <li><span class="chip ok">Ready</span><div><h3>Skills Hub</h3><p class="muted">Initialized with 53 built-in skills, including google-workspace for Gmail, Calendar, Drive, Docs and Sheets.</p></div></li>
+    <li><span class="chip ok">Created</span><div><h3>GitHub test repo</h3><p class="muted">Private <a href="https://github.com/riecodes/hermes-camp-test">riecodes/hermes-camp-test</a> for the GitHub connector.</p></div></li>
+    <li><span class="chip warn">Blocked</span><div><h3>Gemini key</h3><p class="muted">Saved in <code>~/.hermes/.env</code> (owner-only permissions), but its AI Studio project has no prepaid credit left (HTTP 402). Practice switches to ChatGPT Plus.</p></div></li>
+    <li><span class="chip warn">Redo</span><div><h3>ChatGPT sign-in</h3><p class="muted">The first device-code login was stopped by Claude Code because the laptop ran out of free memory. Run it yourself in the Ubuntu terminal (step 2).</p></div></li>
+    <li><span class="chip wait">Queued</span><div><h3>Desktop app build</h3><p class="muted">First attempt failed: Ubuntu had no C compiler. Installed <code>build-essential</code>. The retry waits in the background until at least 3 GB of RAM is free, then builds <code>hermes desktop</code> and checks for missing Linux libraries.</p></div></li>
+    <li><span class="chip ok">Saved</span><div><h3>Organizer guide merged</h3><p class="muted">The checklist below follows the organizers' Hermes Agent Setup Guide, adjusted for Windows with WSL.</p></div></li>
+  </ul>
+</section>
+
+<section aria-labelledby="decisions">
+  <p class="eyebrow">Choices made</p>
+  <h2 id="decisions">Decisions</h2>
+  <div class="tbl">
+    <table>
+      <tbody>
+        <tr><th scope="row">Where Hermes runs</th><td>Ubuntu (WSL), matching the mentors' Linux commands and the VPS</td></tr>
+        <tr><th scope="row">Desktop app</th><td><code>hermes desktop</code> inside Ubuntu, sharing one setup. The Windows <code>Hermes-Setup.exe</code> in Downloads is not needed.</td></tr>
+        <tr><th scope="row">Practice model</th><td>ChatGPT Plus via the openai-codex sign-in. Workshop key at the event.</td></tr>
+        <tr><th scope="row">Supabase</th><td>Skipped. Your account holds live SmartStay data, and Neon covers the database tonight.</td></tr>
+        <tr><th scope="row">Lid-closed test</th><td>Done on the Hostinger VPS. No laptop power settings changed.</td></tr>
+        <tr><th scope="row">Google Workspace</th><td>Built-in skill instead of a separate MCP server</td></tr>
+        <tr><th scope="row">Project files</th><td>Inside Ubuntu at <code>~/camp</code>, not <code>C:\dev</code>, so tokens and node_modules stay off Syncthing</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section aria-labelledby="todo">
+  <p class="eyebrow">Your part</p>
+  <h2 id="todo">Checklist</h2>
+  <p class="muted">Run commands in the <b>Ubuntu</b> app from the Start menu. Ticks are saved in this browser only.</p>
+
+  <div class="progress" aria-live="polite">
+    <div class="progress-row"><span>Progress</span><span id="count">0 / 0</span></div>
+    <div class="bar"><i id="fill"></i></div>
+  </div>
+
+  <div class="group">
+    <div class="group-head"><h3>Before the event, in this order</h3><span class="note">about 60 to 90 min</span></div>
+    <ol class="steps numbered">
+      <li class="step"><input type="checkbox" id="s-ram"><div class="body"><label for="s-ram"><h3>Free up memory</h3></label><p>Close spare Chrome tabs and idle Claude sessions. The queued desktop build starts once 3 GB is free.</p></div></li>
+      <li class="step"><input type="checkbox" id="s-codex"><div class="body"><label for="s-codex"><h3>Sign Hermes in to ChatGPT Plus</h3></label>
+        <div class="cmd"><pre>hermes auth add openai-codex</pre><button type="button">Copy</button></div>
+        <p>Open <a href="https://auth.openai.com/codex/device">auth.openai.com/codex/device</a> and enter the code it prints. Then pick the provider:</p>
+        <div class="cmd"><pre>hermes model</pre><button type="button">Copy</button></div>
+        <p class="note">If device login is refused, turn on device code login in ChatGPT Settings, Security. Your Codex CLI login is not affected.</p></div></li>
+      <li class="step"><input type="checkbox" id="s-hello"><div class="body"><label for="s-hello"><h3>First chat and health check</h3></label>
+        <div class="cmd"><pre>hermes chat -q "hello"</pre><button type="button">Copy</button></div>
+        <div class="cmd"><pre>hermes doctor</pre><button type="button">Copy</button></div></div></li>
+      <li class="step"><input type="checkbox" id="s-desk"><div class="body"><label for="s-desk"><h3>Open the desktop app</h3></label>
+        <div class="cmd"><pre>hermes desktop</pre><button type="button">Copy</button></div>
+        <p class="note">Opens as a Linux window on Windows. Ctrl+K opens the command palette. If it reports a missing <code>.so</code> library, send the name to Claude.</p></div></li>
+      <li class="step"><input type="checkbox" id="s-vercel"><div class="body"><label for="s-vercel"><h3>Connect Vercel</h3></label>
+        <div class="cmd"><pre>hermes mcp install vercel</pre><button type="button">Copy</button></div>
+        <p>Approve in the browser, then:</p>
+        <div class="cmd"><pre>hermes mcp test vercel</pre><button type="button">Copy</button></div></div></li>
+      <li class="step"><input type="checkbox" id="s-gh"><div class="body"><label for="s-gh"><h3>Connect GitHub</h3></label>
+        <ul>
+          <li>Create a <a href="https://github.com/settings/personal-access-tokens/new">fine-grained token</a> with access to only <code>hermes-camp-test</code>. Permissions: Contents, Issues, Pull requests set to Read and write.</li>
+          <li>Add it as one line, <code>GITHUB_TOKEN=...</code>, to the secrets file:</li>
+        </ul>
+        <div class="cmd"><pre>nano ~/.hermes/.env</pre><button type="button">Copy</button></div>
+        <div class="cmd"><pre>hermes mcp add github --url "https://api.githubcopilot.com/mcp/" --auth header --env GITHUB_TOKEN</pre><button type="button">Copy</button></div>
+        <div class="cmd"><pre>hermes mcp test github</pre><button type="button">Copy</button></div></div></li>
+      <li class="step"><input type="checkbox" id="s-neon"><div class="body"><label for="s-neon"><h3>Create a Neon account and connect it</h3></label>
+        <p>Sign up at <a href="https://console.neon.tech/signup">console.neon.tech</a> with Continue with GitHub. Then:</p>
+        <div class="cmd"><pre>hermes mcp install neon</pre><button type="button">Copy</button></div>
+        <div class="cmd"><pre>hermes mcp test neon</pre><button type="button">Copy</button></div></div></li>
+      <li class="step"><input type="checkbox" id="s-google"><div class="body"><label for="s-google"><h3>Google Workspace sign-in</h3></label>
+        <ul>
+          <li>In <a href="https://console.cloud.google.com/">Google Cloud Console</a>, create a project and enable the Gmail, Drive, Docs, Sheets, Calendar and Slides APIs.</li>
+          <li>OAuth consent screen: External, and add your Gmail under Test users.</li>
+          <li>Credentials, Create OAuth client ID, type Desktop app. Download the JSON.</li>
+          <li>In a Hermes chat, ask: <code>set up Google Workspace</code>. The built-in skill walks the sign-in.</li>
+        </ul>
+        <p class="note">This is the longest step. Doing it at home saves 15 minutes at the venue.</p></div></li>
+      <li class="step"><input type="checkbox" id="s-tg"><div class="body"><label for="s-tg"><h3>Telegram bot</h3></label>
+        <ul>
+          <li>Message <code>@BotFather</code>, send <code>/newbot</code>, keep the token private.</li>
+          <li>Message <code>@userinfobot</code> to get your numeric user ID.</li>
+        </ul>
+        <div class="cmd"><pre>hermes gateway setup</pre><button type="button">Copy</button></div>
+        <p class="warnline">Put only your own user ID in the allowed list. Anyone the bot answers can run commands on this laptop.</p>
+        <div class="cmd"><pre>hermes gateway run</pre><button type="button">Copy</button></div>
+        <p class="note">Keep that terminal open; Ubuntu stops when nothing runs in it. Message the bot from your phone to test.</p></div></li>
+      <li class="step"><input type="checkbox" id="s-pack"><div class="body"><label for="s-pack"><h3>Pack</h3></label><p>Charger, phone with Telegram, and logins for GitHub, Vercel, Neon, Google and Hostinger.</p></div></li>
+    </ol>
+  </div>
+
+  <div class="group">
+    <div class="group-head"><h3>At the venue</h3></div>
+    <ul class="steps">
+      <li class="step"><input type="checkbox" id="v-key"><div class="body"><label for="v-key"><h3>Switch to the workshop key</h3></label>
+        <div class="cmd"><pre>hermes model</pre><button type="button">Copy</button></div></div></li>
+      <li class="step"><input type="checkbox" id="v-ssh"><div class="body"><label for="v-ssh"><h3>Make a hackathon SSH key</h3></label>
+        <div class="cmd"><pre>ssh-keygen -t ed25519 -f ~/.ssh/hermes_camp -C hermes-camp</pre><button type="button">Copy</button></div>
+        <p class="note">Paste <code>~/.ssh/hermes_camp.pub</code> into Hostinger when creating the VPS. Keeps your ziondental key separate.</p></div></li>
+      <li class="step"><input type="checkbox" id="v-vps"><div class="body"><label for="v-vps"><h3>Deploy Hermes on the Hostinger VPS</h3></label>
+        <ul>
+          <li>Ubuntu 24.04, or Hostinger's one-click Hermes Agent template if the mentors use it.</li>
+          <li>Create a non-root user, install, run setup, then set up Telegram there.</li>
+        </ul>
+        <div class="cmd"><pre>adduser hermes &amp;&amp; usermod -aG sudo hermes &amp;&amp; su - hermes</pre><button type="button">Copy</button></div>
+        <div class="cmd"><pre>curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash</pre><button type="button">Copy</button></div>
+        <div class="cmd"><pre>hermes setup &amp;&amp; hermes gateway setup &amp;&amp; hermes gateway start</pre><button type="button">Copy</button></div>
+        <p class="note">If the VPS install fails at node, run <code>sudo apt install -y libatomic1</code> and rerun; same fix as the laptop.</p></div></li>
+      <li class="step"><input type="checkbox" id="v-lid"><div class="body"><label for="v-lid"><h3>Lid-closed test</h3></label><p>Close the laptop, wait a few minutes, message the VPS bot from your phone. A reply means it runs on its own.</p></div></li>
+      <li class="step"><input type="checkbox" id="v-camp"><div class="body"><label for="v-camp"><h3>Team project folder</h3></label>
+        <div class="cmd"><pre>mkdir -p ~/camp &amp;&amp; cd ~/camp</pre><button type="button">Copy</button></div></div></li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <div class="group-head"><h3>Final verification</h3><span class="note">from the organizers' guide</span></div>
+    <ul class="steps">
+      <li class="step"><input type="checkbox" id="f-check"><div class="body"><label for="f-check"><h3>Everything reports healthy</h3></label>
+        <div class="cmd"><pre>hermes doctor &amp;&amp; hermes status --all</pre><button type="button">Copy</button></div>
+        <div class="cmd"><pre>hermes mcp list</pre><button type="button">Copy</button></div>
+        <div class="cmd"><pre>hermes gateway status</pre><button type="button">Copy</button></div>
+        <p class="note">Expect github, vercel and neon in the MCP list. Google Workspace runs as a skill, and Supabase is skipped on purpose. Watch logs with <code>hermes logs -f</code>.</p></div></li>
+    </ul>
+  </div>
+
+  <button type="button" class="reset" id="reset">Clear all ticks</button>
+</section>
+
+<section aria-labelledby="gotchas">
+  <p class="eyebrow">Learned the hard way</p>
+  <h2 id="gotchas">Gotchas</h2>
+  <ol class="gotchas">
+    <li><b>Memory.</b> Ubuntu plus Hermes needs 1 to 2 GB free. With many Claude sessions and Chrome tabs open, the laptop dropped to 0.6 GB and background jobs got stopped.</li>
+    <li><b>libatomic1.</b> Fresh Ubuntu can lack it, and the installer only says "pm install failed". Install it and rerun.</li>
+    <li><b>build-essential.</b> <code>hermes desktop</code> compiles native packages on its first build. Without <code>make</code> and <code>gcc</code> it stops at <code>gyp ERR! not ok</code>. Fix: <code>sudo apt install -y build-essential</code>, already done on this laptop.</li>
+    <li><b>WSL "device is not ready".</b> Error <code>ConfigureGpu/HCS/0x80070015</code> means the NVIDIA card was asleep when Ubuntu tried to start. Opening Ubuntu again a moment later worked.</li>
+    <li><b>Run sign-ins yourself.</b> Device codes and browser logins work best in your own Ubuntu terminal.</li>
+    <li><b>Secrets go in <code>.env</code>.</b> Tokens never go in config.yaml, chat, or the repo.</li>
+    <li><b>Restart after MCP changes.</b> Hermes loads connectors at startup; there is no hot reload.</li>
+  </ol>
+</section>
+
+<footer>
+  <p>Docs: <a href="https://hermes-agent.nousresearch.com/docs">hermes-agent.nousresearch.com/docs</a> · Source: <a href="https://github.com/NousResearch/hermes-agent">NousResearch/hermes-agent</a></p>
+  <p>Prepared Oct 2, 2026 on rieLaptop. No keys or tokens appear on this page.</p>
+</footer>
+
+</div>
+
+<script>
+(function () {
+  var KEY = 'camp-run-hermes-ticks';
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.step input[type=checkbox]'));
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+
+  function render() {
+    var n = 0;
+    boxes.forEach(function (b) {
+      b.closest('.step').classList.toggle('done', b.checked);
+      if (b.checked) n++;
+    });
+    document.getElementById('count').textContent = n + ' / ' + boxes.length;
+    document.getElementById('fill').style.width = (boxes.length ? (n / boxes.length) * 100 : 0) + '%';
+  }
+  function save() {
+    var s = {};
+    boxes.forEach(function (b) { if (b.checked) s[b.id] = 1; });
+    try { localStorage.setItem(KEY, JSON.stringify(s)); } catch (e) {}
+  }
+  boxes.forEach(function (b) {
+    b.checked = !!saved[b.id];
+    b.addEventListener('change', function () { render(); save(); });
+  });
+  document.getElementById('reset').addEventListener('click', function () {
+    boxes.forEach(function (b) { b.checked = false; });
+    render(); save();
+  });
+
+  document.querySelectorAll('.cmd button').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.parentNode.querySelector('pre');
+      var text = pre.textContent;
+      function done(label) { btn.textContent = label; setTimeout(function () { btn.textContent = 'Copy'; }, 1400); }
+      function fallback() {
+        var r = document.createRange(); r.selectNodeContents(pre);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+        done('Selected');
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { done('Copied'); }, fallback);
+      } else { fallback(); }
+    });
+  });
+  render();
+})();
+</script>

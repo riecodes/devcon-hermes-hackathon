@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suki Pulse: what we built</title>
+<style>
+:root {
+  color-scheme: light dark;
+  --bg: #f5f6f7; --surface: #ffffff; --surface-2: #f5f6f7;
+  --tint: #e6f7ed; --tint-2: #c9efd8;
+  --ink: #232322; --muted: rgb(35 35 34 / 68%); --faint: rgb(35 35 34 / 45%);
+  --line: #e6e8eb; --line-2: #c9efd8;
+  --accent: #0a7a3a; --accent-fill: #0a7a3a; --accent-ui: #009a45;
+  --accent-2: #ffb703; --danger: #c62828; --warn-bg: #fff4d6;
+  --radius-field: 14px; --radius: 16px; --radius-lg: 20px; --radius-pill: 999px;
+  --hairline: inset 0 0 0 1px var(--line);
+  --font-display: "Archivo", "Segoe UI Variable Display", system-ui, sans-serif;
+  --font-ui: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif;
+  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --ease-out: cubic-bezier(.16, 1, .3, 1);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0b0c0d; --surface: #131416; --surface-2: #191b1d;
+    --tint: #123524; --tint-2: #184a31;
+    --ink: #eceae4; --muted: #a4a6a8; --faint: #8c9094;
+    --line: #25282b; --line-2: #34383c;
+    --accent: #2fbf6f; --accent-ui: #2fbf6f; --accent-2: #ff9f0a;
+    --danger: #ff8a80; --warn-bg: #3a2f10;
+    --hairline: inset 0 0 0 1px rgba(255,255,255,.05);
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.55 var(--font-ui); -webkit-font-smoothing: antialiased; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+h1, h2, h3 { font-family: var(--font-display); margin: 0; text-wrap: balance; line-height: 1.05; }
+h1 { font-weight: 800; font-size: clamp(36px, 6vw, 68px); letter-spacing: -.035em; font-stretch: 92%; }
+h2 { font-weight: 800; font-size: clamp(26px, 3.2vw, 36px); letter-spacing: -.03em; }
+h3 { font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+p { margin: 0; text-wrap: pretty; }
+.num { font-variant-numeric: tabular-nums; }
+code, .mono { font-family: var(--font-mono); font-size: .88em; }
+:focus-visible { outline: 2px solid var(--accent-ui); outline-offset: 2px; }
+
+.eyebrow { font: 650 12.5px/1.2 var(--font-ui); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 12px; }
+.eyebrow b { color: var(--accent); font-weight: 700; }
+
+/* header */
+header { padding: 64px 0 40px; border-bottom: 1px solid var(--line); }
+header .top { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 40px; flex-wrap: wrap; }
+.brand { font: 800 15px var(--font-display); letter-spacing: -.01em; display: flex; align-items: center; gap: 10px; }
+.brand i { width: 10px; height: 10px; border-radius: 3px; background: var(--accent-ui); box-shadow: 0 0 12px 1px var(--accent-ui); }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 11px; border-radius: var(--radius-pill); font: 700 12px/1.6 var(--font-ui); background: var(--surface-2); color: var(--muted); box-shadow: var(--hairline); }
+.pill.ok { background: var(--tint); color: var(--accent); box-shadow: none; }
+.pill.need { background: var(--warn-bg); color: var(--ink); box-shadow: none; }
+.hero { display: grid; grid-template-columns: 1.35fr 1fr; gap: 48px; align-items: end; }
+.hero .lede { font-size: 18px; color: var(--muted); max-width: 56ch; margin-top: 20px; }
+.hero .lede strong { color: var(--ink); font-weight: 650; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--line); border-radius: var(--radius); overflow: hidden; box-shadow: var(--hairline); }
+.facts div { background: var(--surface); padding: 16px 18px; }
+.facts dt { font: 700 12px var(--font-ui); color: var(--muted); margin-bottom: 4px; }
+.facts dd { margin: 0; font: 800 28px/1 var(--font-display); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.facts dd small { font-size: 13px; font-weight: 700; color: var(--muted); letter-spacing: 0; margin-left: 4px; }
+
+section { padding: 56px 0; border-bottom: 1px solid var(--line); }
+.sec-head { display: grid; grid-template-columns: 260px 1fr; gap: 40px; margin-bottom: 28px; }
+.sec-head p { color: var(--muted); max-width: 62ch; font-size: 16px; }
+
+/* chain */
+.chain { display: grid; grid-template-columns: repeat(5, 1fr); counter-reset: s; position: relative; }
+.chain li { list-style: none; padding: 18px 18px 18px 0; position: relative; }
+.chain li + li { padding-left: 18px; border-left: 1px solid var(--line); }
+.chain .n { font: 800 13px var(--font-mono); color: var(--accent); display: block; margin-bottom: 10px; }
+.chain h3 { margin-bottom: 6px; }
+.chain p { color: var(--muted); font-size: 14px; }
+.chain .who { font: 700 11px var(--font-mono); text-transform: uppercase; letter-spacing: .1em; color: var(--faint); margin-top: 10px; display: block; }
+.loopback { margin-top: 14px; padding: 12px 16px; background: var(--tint); border-radius: var(--radius-field); font-size: 14px; color: var(--ink); }
+.loopback b { color: var(--accent); }
+
+/* tables */
+.card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--hairline); overflow: hidden; }
+table { width: 100%; border-collapse: collapse; }
+th { text-align: left; font: 650 12px var(--font-ui); letter-spacing: .04em; text-transform: uppercase; color: var(--muted); padding: 12px 16px; border-bottom: 1px solid var(--line); }
+td { padding: 12px 16px; vertical-align: top; font-size: 14.5px; }
+tr + tr td { border-top: 1px solid var(--line); }
+td.r, th.r { text-align: right; }
+td code { color: var(--ink); font-weight: 600; }
+td .sub { color: var(--muted); font-size: 13.5px; }
+.tag { font: 700 10.5px var(--font-mono); letter-spacing: .1em; text-transform: uppercase; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--surface-2); color: var(--muted); white-space: nowrap; }
+.tag.w { background: var(--tint); color: var(--accent); }
+
+/* layers */
+.layers { display: grid; grid-template-columns: 1.25fr 1fr; gap: 24px; }
+.stack > * + * { margin-top: 24px; }
+.wf { padding: 18px 20px; }
+.wf + .wf { border-top: 1px solid var(--line); }
+.wf h3 { display: flex; gap: 10px; align-items: baseline; }
+.wf h3 span { font: 800 13px var(--font-mono); color: var(--accent); }
+.wf p { color: var(--muted); font-size: 14px; margin-top: 6px; }
+.wf ol { margin: 8px 0 0; padding-left: 18px; color: var(--muted); font-size: 14px; }
+.wf .trig { font-size: 13px; color: var(--faint); margin-top: 8px; font-style: italic; }
+
+/* mock pane + card */
+.mock { padding: 18px; }
+.mock .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.mock .bar b { font: 700 15px var(--font-display); }
+.sel { display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 10px; background: var(--surface-2); box-shadow: var(--hairline); font-size: 14px; margin-bottom: 10px; }
+.sel span { color: var(--muted); }
+.btn { display: block; width: 100%; text-align: left; padding: 11px 14px; border-radius: 10px; border: 0; font: 600 14px var(--font-ui); margin-top: 8px; background: var(--surface); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); cursor: default; }
+.btn.p { background: var(--accent-fill); color: #fff; box-shadow: none; }
+.kbd { font: 600 12px var(--font-mono); color: var(--muted); margin-top: 14px; line-height: 1.8; }
+.kbd kbd { font: inherit; padding: 1px 6px; border-radius: 5px; box-shadow: inset 0 0 0 1px var(--line-2); color: var(--ink); }
+
+.dcard { padding: 18px; }
+.dcard .h { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 14px; }
+.dcard .h b { font: 700 15px var(--font-display); }
+.dcard .h span { font-size: 12.5px; color: var(--muted); }
+.bars { display: grid; grid-template-columns: 150px 1fr 28px; gap: 8px 12px; align-items: center; font-size: 13.5px; }
+.bars .t { height: 6px; border-radius: 99px; background: var(--tint); overflow: hidden; }
+.bars .t i { display: block; height: 100%; background: var(--accent-ui); border-radius: 99px; transform-origin: left; animation: fill .7s var(--ease-out) both; }
+.bars .v { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.dcard .foot { margin-top: 14px; font-size: 12.5px; color: var(--muted); display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+@keyframes fill { from { transform: scaleX(0); } }
+
+/* chain-wide */
+.wide { display: grid; grid-template-columns: 1fr 1.5fr; gap: 24px; align-items: start; }
+.big { display: flex; align-items: baseline; gap: 8px; font: 800 64px/1 var(--font-display); letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.big small { font-size: 20px; color: var(--muted); letter-spacing: -.01em; }
+.meta { margin-top: 18px; display: grid; grid-template-columns: repeat(3, auto); gap: 6px 22px; justify-content: start; font-size: 13.5px; color: var(--muted); }
+.meta b { color: var(--ink); display: block; font: 800 20px var(--font-display); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+.need-row td:first-child { box-shadow: inset 3px 0 0 var(--accent-2); }
+.cause { font-size: 13px; color: var(--muted); }
+
+/* extras + status */
+.extras { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 40px; }
+.extras div { padding: 18px 0; border-top: 1px solid var(--line); }
+.extras h3 { margin-bottom: 6px; }
+.extras p { color: var(--muted); font-size: 14.5px; }
+.extras a { color: var(--accent); text-underline-offset: 3px; }
+
+.status { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.status ul { list-style: none; margin: 0; padding: 0; }
+.status li { padding: 12px 18px; font-size: 14.5px; }
+.status li + li { border-top: 1px solid var(--line); }
+.status li .sub { display: block; color: var(--muted); font-size: 13px; margin-top: 2px; }
+.status .card > h3 { padding: 16px 18px 4px; display: flex; gap: 10px; align-items: center; }
+
+footer { padding: 32px 0 56px; color: var(--faint); font-size: 13px; }
+
+@media (max-width: 880px) {
+  .hero, .sec-head, .layers, .wide, .status, .extras { grid-template-columns: 1fr; gap: 20px; }
+  .chain { grid-template-columns: 1fr; }
+  .chain li + li { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; }
+  .bars { grid-template-columns: 120px 1fr 28px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand"><i></i>Suki Pulse</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="pill">CAMP / RUN Hermes hackathon · Oct 2, 2026</span>
+        <span class="pill ok">Runs end to end in Hermes Desktop</span>
+      </div>
+    </div>
+    <div class="hero">
+      <div>
+        <div class="eyebrow">What we built so far · <b>Open Innovation</b> (Ops + CX)</div>
+        <h1>Complaints are symptoms. The causes live in operations.</h1>
+        <p class="lede">Suki Pulse reads a branch's open tickets and unreplied bad reviews, has <strong>Jev</strong> label each one's root cause, ties the counts to <strong>operational proof</strong> (late riders, stock with no PO, broken loyalty ledgers) and then <strong>fixes both sides</strong>: the operation and the customer.</p>
+      </div>
+      <dl class="facts">
+        <div><dt>MCP tools</dt><dd class="num">10<small>5 read · 5 write</small></dd></div>
+        <div><dt>Skill workflows</dt><dd class="num">3<small>A · B · C</small></dd></div>
+        <div><dt>Complaints triaged</dt><dd class="num">694<small>12 branches</small></dd></div>
+        <div><dt>Cost of that run</dt><dd class="num">$0.016<small>64.7 s</small></dd></div>
+      </dl>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">01 · The chain</div><h2>One click, five hops, real data back in the GUI</h2></div>
+      <p>The hackathon asks for three connected layers on the Suki Mart sandbox (<code>data/store.db</code>, about 230k rows, "today" is 2026-09-30). This is the path a single "Pulse check" click takes.</p>
+    </div>
+    <ol class="chain" style="padding:0;margin:0">
+      <li><span class="n">01</span><h3>Desktop pane</h3><p>Pick a branch, press a button. The plugin submits a prompt that names the skill.</p><span class="who">Layer 3 · plugin.js</span></li>
+      <li><span class="n">02</span><h3>Skill</h3><p>The suki-pulse playbook decides which tools to call, in what order, and what to show.</p><span class="who">Layer 2 · SKILL.md</span></li>
+      <li><span class="n">03</span><h3>MCP server</h3><p>Domain tools with the SQL inside. No generic run_sql.</p><span class="who">Layer 1 · server.py</span></li>
+      <li><span class="n">04</span><h3>Jev triage</h3><p>TypeSafe's classifier labels cause, churn risk and urgency. Cached; keyword fallback if it fails.</p><span class="who">TypeSafe API</span></li>
+      <li><span class="n">05</span><h3>store.db</h3><p>Evidence is read, fixes are written, every write is logged to <code>pulse_actions</code>.</p><span class="who">Suki Mart sandbox</span></li>
+    </ol>
+    <p class="loopback"><b>Back into the GUI:</b> the skill emits <code>::suki-pulse{…}</code> and <code>::suki-scorecard{…}</code> directives, which the plugin renders as native cards inside the agent's reply.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">02 · Layer 1, the hands</div><h2>The <code style="font-size:.8em">suki</code> MCP server</h2></div>
+      <p>Each tool answers one business question. Writes never lower a customer's balance, and purchase orders use the supplier's real lead time, not its promised one. <code>hermes mcp test suki</code> passes with 10/10 tools.</p>
+    </div>
+    <div class="card">
+      <table>
+        <thead><tr><th>Tool</th><th></th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><code>list_branches</code></td><td><span class="tag">read</span></td><td>The 12 branches, codes, cities, delivery or not.</td></tr>
+          <tr><td><code>pulse_scorecard</code></td><td><span class="tag">read</span></td><td>One branch's health: open tickets, never answered, unreplied 1-2★ reviews, late %, loyalty mismatches, low stock with no PO, expiring perishables. Run before and after fixes.</td></tr>
+          <tr><td><code>triage_feedback</code></td><td><span class="tag">read</span></td><td>Sends unresolved complaints to Jev in parallel. Returns cause counts, the riskiest items, engine, tokens and USD. Cached in <code>jev_triage</code>.</td></tr>
+          <tr><td><code>root_cause_rollup</code></td><td><span class="tag">read</span></td><td>Puts each cause count next to its operational evidence: worst rider, items at reorder point, ledger gaps, unbudgeted promo orders.</td></tr>
+          <tr><td><code>get_customer_story</code></td><td><span class="tag">read</span></td><td>One customer's orders, deliveries, tickets, reviews and loyalty in one timeline.</td></tr>
+          <tr><td><code>resolve_ticket</code></td><td><span class="tag w">write</span></td><td>Resolves with a note; stamps a first response if there never was one.</td></tr>
+          <tr><td><code>reply_to_review</code></td><td><span class="tag w">write</span></td><td>Publishes a reply (sets <code>replied_at</code>, <code>reply_text</code>).</td></tr>
+          <tr><td><code>fix_loyalty_balance</code></td><td><span class="tag w">write</span></td><td>Reconciles the ledger in the customer's favour, plus optional goodwill points.</td></tr>
+          <tr><td><code>draft_purchase_orders</code></td><td><span class="tag w">write</span></td><td>PENDING POs for the most urgent items at reorder point with no open PO.</td></tr>
+          <tr><td><code>flag_rider_for_coaching</code></td><td><span class="tag w">write</span></td><td>Flags a rider whose late deliveries are driving complaints.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">03 · Layers 2 and 3</div><h2>The playbook and the face</h2></div>
+      <p>Jev only labels. Hermes does the reasoning, plans at most six actions across operations and customer recovery, and asks before it writes anything.</p>
+    </div>
+    <div class="layers">
+      <div class="card">
+        <div class="wf">
+          <div class="eyebrow" style="margin:0 0 6px">skills/suki-pulse/SKILL.md</div>
+          <h3><span>A</span>Pulse check <span class="tag" style="margin-left:auto">read-only</span></h3>
+          <ol><li>scorecard → triage → root-cause rollup</li><li>Headline, pulse card, Cause | Complaints | Evidence | Fix table, cost line</li></ol>
+          <p class="trig">"pulse check TMR", "why are customers angry at BGC"</p>
+        </div>
+        <div class="wf">
+          <h3><span>B</span>Fix the top root cause <span class="tag w" style="margin-left:auto">writes</span></h3>
+          <ol><li>Ops side: coach the rider, draft POs, or fix ledgers, by cause</li><li>Customer side: resolve 1-3 risky tickets, reply to reviews (Taglish-friendly), goodwill points</li><li>Confirm, run, re-score, show before → after</li></ol>
+          <p class="trig">"fix it", or the pane's Fix button</p>
+        </div>
+        <div class="wf">
+          <h3><span>C</span>Recover one customer <span class="tag w" style="margin-left:auto">writes</span></h3>
+          <ol><li>Riskiest triaged customer → full story in 3 bullets</li><li>Plan, confirm, resolve + goodwill, one-line outcome</li></ol>
+          <p class="trig">"recover the riskiest customer at ALB"</p>
+        </div>
+      </div>
+
+      <div class="stack">
+        <div class="card mock" aria-label="Plugin pane, simplified">
+          <div class="bar"><b>Suki Pulse</b><span class="eyebrow" style="margin:0">desktop-plugin/suki-pulse</span></div>
+          <div class="sel">Branch <span>TMR · Tomas Morato ▾</span></div>
+          <button class="btn p" tabindex="-1">Pulse check</button>
+          <button class="btn" tabindex="-1">Fix top root cause</button>
+          <button class="btn" tabindex="-1">Recover riskiest customer</button>
+          <button class="btn" tabindex="-1">Branch scorecard</button>
+          <div class="kbd">4 commands in <kbd>Ctrl</kbd>+<kbd>K</kbd> · <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> runs a pulse check</div>
+        </div>
+
+        <div class="card dcard" aria-label="Pulse card rendered from a directive">
+          <div class="h"><b>Root causes · TMR</b><span>::suki-pulse card</span></div>
+          <div class="bars">
+            <span>Late delivery</span><span class="t"><i style="width:100%"></i></span><span class="v">5</span>
+            <span>Spoiled / damaged</span><span class="t"><i style="width:40%"></i></span><span class="v">2</span>
+            <span>Out of stock</span><span class="t"><i style="width:20%"></i></span><span class="v">1</span>
+            <span>Loyalty points</span><span class="t"><i style="width:20%"></i></span><span class="v">1</span>
+            <span>Promo code</span><span class="t"><i style="width:20%"></i></span><span class="v">1</span>
+            <span>Payment / refund</span><span class="t"><i style="width:20%"></i></span><span class="v">1</span>
+          </div>
+          <div class="foot"><span>10 items · 1 high churn risk</span><span class="mono">jev-1.13.0 · $0.000236</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">04 · What Jev found</div><h2>Every open complaint, chain-wide</h2></div>
+      <p>One full Jev run over all 12 branches, published as a static dashboard at <a href="https://suki-pulse.vercel.app" style="color:var(--accent)">suki-pulse.vercel.app</a>. Late delivery is the top cause; Tomas Morato delivers late almost half the time, and one rider, Christian Lacson, accounts for 63 late deliveries in 30 days.</p>
+    </div>
+    <div class="wide">
+      <div class="card dcard">
+        <div class="eyebrow" style="margin:0 0 10px">Complaints triaged</div>
+        <div class="big">694<small>across 12 branches</small></div>
+        <div class="bars" style="margin-top:22px">
+          <span>Late delivery</span><span class="t"><i style="width:100%"></i></span><span class="v">203</span>
+          <span>Spoiled / damaged</span><span class="t"><i style="width:79.8%"></i></span><span class="v">162</span>
+          <span>Payment / refund</span><span class="t"><i style="width:55.2%"></i></span><span class="v">112</span>
+          <span>Out of stock</span><span class="t"><i style="width:52.2%"></i></span><span class="v">106</span>
+          <span>Loyalty points</span><span class="t"><i style="width:33%"></i></span><span class="v">67</span>
+          <span>Promo code</span><span class="t"><i style="width:16.3%"></i></span><span class="v">33</span>
+        </div>
+        <div class="meta">
+          <span><b>388,465</b>input tokens</span>
+          <span><b>$0.0163</b>total cost</span>
+          <span><b>0</b>fallbacks</span>
+        </div>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr><th>Branch</th><th>Top cause</th><th class="r">Items</th><th class="r">Open tix</th><th class="r">Late %</th><th class="r">No PO</th></tr></thead>
+          <tbody class="num">
+            <tr class="need-row"><td><b>TMR</b></td><td class="cause">Late delivery</td><td class="r">37</td><td class="r">15</td><td class="r"><b>47.3</b></td><td class="r">22</td></tr>
+            <tr><td><b>BGC</b></td><td class="cause">Payment / refund</td><td class="r">92</td><td class="r">33</td><td class="r">33.1</td><td class="r">3</td></tr>
+            <tr><td><b>ALB</b></td><td class="cause">Late delivery</td><td class="r">91</td><td class="r">35</td><td class="r">33.7</td><td class="r">21</td></tr>
+            <tr><td><b>CUB</b></td><td class="cause">Late delivery</td><td class="r">90</td><td class="r">30</td><td class="r">36.1</td><td class="r">10</td></tr>
+            <tr><td><b>MKT</b></td><td class="cause">Spoiled / damaged</td><td class="r">75</td><td class="r">29</td><td class="r">30.8</td><td class="r">11</td></tr>
+            <tr><td><b>ORT</b></td><td class="cause">Late delivery</td><td class="r">68</td><td class="r">22</td><td class="r">37.4</td><td class="r">23</td></tr>
+            <tr><td><b>PQE</b></td><td class="cause">Payment / refund</td><td class="r">53</td><td class="r">22</td><td class="r">29.9</td><td class="r">14</td></tr>
+            <tr><td><b>KAT</b></td><td class="cause">Spoiled / damaged</td><td class="r">50</td><td class="r">22</td><td class="r">34.2</td><td class="r">23</td></tr>
+            <tr><td><b>KPT</b></td><td class="cause">Spoiled / damaged</td><td class="r">50</td><td class="r">25</td><td class="r">28.3</td><td class="r">14</td></tr>
+            <tr><td><b>MKN</b></td><td class="cause">Late delivery</td><td class="r">46</td><td class="r">18</td><td class="r">35.5</td><td class="r">13</td></tr>
+            <tr><td><b>MAN</b></td><td class="cause">Spoiled / damaged</td><td class="r">25</td><td class="r">9</td><td class="r">·</td><td class="r">27</td></tr>
+            <tr class="need-row"><td><b>ERM</b></td><td class="cause">Spoiled / damaged</td><td class="r">17</td><td class="r">4</td><td class="r">·</td><td class="r"><b>43</b></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">05 · Around the build</div><h2>Pitch assets and how we worked</h2></div>
+      <p>Beyond the three judged layers.</p>
+    </div>
+    <div class="extras">
+      <div><h3>Live dashboard</h3><p>Static site built from a real Jev run (<code>template + data.json → index.html</code>), deployed on Vercel at <a href="https://suki-pulse.vercel.app">suki-pulse.vercel.app</a>. A restyle in our own design language is built locally (v2).</p></div>
+      <div><h3>Design system</h3><p>Tokens and component rules extracted from four shipped projects (saulog_tracker, foil, gecko, notchy): dark stage, one green accent, amber reserved for "needs you", Archivo display type. This page uses it too.</p></div>
+      <div><h3>Demo film</h3><p>A Remotion/HTML motion piece is in progress under <code>videos/</code>, fed by real numbers from <code>make_data.py</code>, with dashboard screenshots in both colour schemes.</p></div>
+      <div><h3>Agent bus</h3><p>Hermes and two Claude Code sessions (review and video) coordinated through markdown handoffs in <code>.agent-bus/</code>: status, code reviews with verified SQL, and asset requests.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-head">
+      <div><div class="eyebrow">06 · Status</div><h2>Verified, and what's left</h2></div>
+      <p>As of the latest review and a check of the repo just now.</p>
+    </div>
+    <div class="status">
+      <div class="card">
+        <h3><span class="pill ok">Verified</span></h3>
+        <ul>
+          <li>Pane → skill → MCP → Jev → native card, live in Hermes Desktop<span class="sub">TMR pulse check, 25 items triaged for $0.000589</span></li>
+          <li>Full tool test on a copy of store.db<span class="sub">10 TMR items in 2.5 s, 0 fallbacks, PO-2026-00779 and -00780 created, scorecard moved</span></li>
+          <li>Review 1 fixes landed<span class="sub">triage can't crash on an odd Jev reply; PO numbering fixed</span></li>
+          <li><code>hermes mcp test suki</code>: 10/10 tools</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3><span class="pill need">To do</span></h3>
+        <ul>
+          <li>Promo evidence bug, <code>server.py:433</code><span class="sub">SEPT3X has budget 0, not NULL. Use <code>COALESCE(pr.budget_php, 0) = 0</code> (finds 12 orders at TMR). Still unfixed.</span></li>
+          <li>Nothing committed yet<span class="sub">server.py, store.db, the skill and the plugin are local changes; origin is still the organizers' repo, so fork before pushing</span></li>
+          <li>Reset before the demo<span class="sub"><code>python data/seed.py</code> after rehearsing "Fix top root cause"</span></li>
+          <li>Projector hygiene<span class="sub">close the Files column showing the home folder</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer><div class="wrap">Suki Mart and everyone in it are fictional. Numbers on this page come from the tools' own output and the Jev run in <code>suki-pulse-site/data.json</code>.</div></footer>
+</body>
+</html>

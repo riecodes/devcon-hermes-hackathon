@@ -1,0 +1,6 @@
+{
+  "name": "jev-live-race",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" }
+}

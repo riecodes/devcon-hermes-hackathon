@@ -1,0 +1,1 @@
+{ "redirects": [ { "source": "/(.*)", "destination": "https://suki-pulse.vercel.app/race/", "permanent": false } ] }

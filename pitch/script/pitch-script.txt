@@ -1,0 +1,78 @@
+SUKI PULSE
+
+Slide 1
+
+Meet Joshua, a Suki Mart customer at Tomas Morato.
+His delivery arrived 38 minutes late.
+He opened ticket 585, eleven days ago. Nobody has answered it.
+So he left a two-star review titled "Please fix this." Nobody replied to that either.
+Right now there are 694 complaints like his waiting.
+
+We're [team]. This is Suki Pulse: complaint, root cause, fix, in one click.
+
+Slide 2
+
+Suki Mart is 12 branches and six months of data: 221,142 rows, 35,203 orders, 38.3 million pesos in sales.
+
+Support sees 264 open tickets, 75 days old on average, the oldest 182 days. 430 bad reviews with no reply.
+
+But the reasons live in operations. Half of Tomas Morato's deliveries are late, against 32% chain-wide. 224 items are running low with no purchase order. 142 loyalty accounts disagree with their own ledger, 44,214 points out of sync.
+
+Two teams, one problem, and no bridge between them.
+
+Slide 3
+
+Suki Pulse is that bridge, in three connected layers.
+A pane in Hermes Desktop: a branch picker, four buttons, four shortcut commands.
+A skill with three workflows: pulse check, fix the top cause, recover a customer.
+And our own MCP server: ten tools, five that read and five that act, each one answering a business question, like "which rider is behind the late deliveries."
+One click goes through all three and comes back with real data.
+
+Slide 4
+
+The trick is the pairing. Jev, from TypeSafe, only labels: eight questions per complaint, answered in about half a second. Hermes does the thinking and the acting.
+We ran all 694 complaints across all 12 branches: 64.7 seconds, 388,465 input tokens, about one and a half US cents, zero fallbacks.
+Let me show you.
+
+Demo
+
+It lives inside Hermes like a built-in panel. Tomas Morato. Pulse check.
+
+Jev is reading 25 complaints right now, eight questions each, in parallel.
+
+25 complaints triaged, 4 at high risk of leaving, for six hundredths of a cent.
+
+Late delivery explains the most. Tomas Morato is 47.3% late in the last 30 days, and it names the rider: 63 late out of 85, across 10 branches.
+
+Spoiled food: 41,224 pesos of perishables here expire within three days. Across the chain, it's 951,242 pesos.
+
+Out of stock: 22 items here with no purchase order.
+
+Each step is one of our tools, named for a business question.
+
+Now, fix the top root cause. It plans fixes on both sides, and it asks before touching anything. Yes.
+
+The rider is flagged for coaching. Purchase orders are drafted with the supplier's real delivery time, not its promise. Loyalty points are fixed, never lowered. The ticket is resolved, and the review gets a warm reply.
+
+And here's the impact: before and after.
+
+Native commands too, not a bolt-on.
+
+Slide 8
+
+Why not just ask a big language model? We raced them tonight: 40 real complaints, the same eight questions, the same laptop.
+
+Jev's median was 586 milliseconds. Claude Haiku's was 2.29 seconds.
+When Jev finished all 40, in 27.5 seconds, Haiku had done 8. It needed 105.7.
+Eight at once: 4.9 seconds against 13.4.
+Per decision, $0.000023 against $0.000829. That's 35 times cheaper.
+And one question or sixteen barely matters to Jev: 430 milliseconds to 553.
+
+Slide 9
+
+Everything you saw is live. Scan any code: the dashboard, the live race, the benchmark, and the code.
+Every number tonight was measured, not mocked.
+
+Complaints in. Causes found. Both sides fixed. With Hermes doing the work.
+
+Thank you.

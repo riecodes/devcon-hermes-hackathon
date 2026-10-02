@@ -1,0 +1,87 @@
+SUKI PULSE
+
+WHAT IT IS
+
+Suki Pulse is a pulse check for Suki Mart.
+One click reads every customer complaint, finds the operational cause behind it, and fixes both sides: the customer and the operation.
+Hermes runs the whole loop. Jev makes it fast enough to run on every complaint, not just a sample.
+
+THE PROBLEM AT THE SEAM
+
+Right now Suki Mart has 694 complaints waiting: 264 open support tickets, 75 days old on average, and 430 one and two star reviews nobody has replied to.
+
+Support sees the complaint. Operations sees the cause. Nobody connects them.
+Half of Tomas Morato's deliveries are late. 224 items are running low with no purchase order. 142 loyalty accounts disagree with their own ledger.
+A late rider is an operations problem and a one-star review at the same time. Fix only one side, and the other comes back.
+
+WHY OPEN INNOVATION
+
+The first track is business operations. The second is customer experience.
+We built for open innovation because this problem doesn't live in either track. It lives between them.
+The problem we solved: connecting every customer complaint to its operational root cause, and fixing both in one loop.
+Customer experience tells us where it hurts. Business operations tells us why. Suki Pulse closes the gap, and Hermes does the real work: it reads, decides, plans, asks, and acts.
+
+THE BACKEND PROBLEM
+
+Here's why nobody connects the two sides: it's a hard backend problem.
+
+The data is big. Suki Mart's sandbox is 221,142 rows across 18 tables: 35,203 orders, 129,846 order items, 9,397 deliveries, 16,737 loyalty transactions, six months of history.
+You can't paste that into a prompt. The answer to one complaint can touch 14 of those 18 tables: tickets, reviews, deliveries, riders, stock, suppliers, purchase orders and the loyalty ledger.
+
+The complaints are free text. 694 of them, written by people, in their own words. Somebody has to read each one and decide what it's really about.
+
+The data is messy on purpose. 142 loyalty accounts disagree with their own ledger, 44,214 points out of sync. A supplier promises 5 days and takes 11.3. A promo ran on 221 orders with no discount recorded.
+
+And the obvious fix is too slow and too expensive. Send every complaint to a regular language model and, at its measured median of 2.29 seconds, one pass over all 694 takes about 26 minutes and costs about 58 cents. Then you still have to parse its free-text answers. That's why teams only ever look at a sample.
+
+THE FAST BACKEND: HERMES AND JEV
+
+Two engines, each doing what it's best at.
+
+Jev, from TypeSafe AI, is a decision model. It doesn't write text. It answers typed questions with probabilities.
+For every complaint we ask eight at once: six possible root causes, how likely the customer is to leave, and how urgent it is.
+Jev answers all eight in about half a second, in parallel.
+
+Hermes is the brain. It takes Jev's labels, pulls the evidence from operations, decides what to fix, asks for approval, and makes the changes.
+
+That split is what makes it fast and cheap.
+The 221,142 rows never go near a prompt: our tools run the queries and hand Hermes small, clean answers.
+Jev's answers come back typed, so there's nothing to parse.
+We ran all 694 complaints across all 12 branches in 64.7 seconds, for about one and a half US cents, with zero fallbacks. The estimate for a regular language model was 26 minutes and 58 cents.
+Results are cached, so running it again costs nothing.
+Next to a regular language model on the same complaints and the same questions, Jev was about four times faster, 586 milliseconds against 2.29 seconds, and 35 times cheaper per decision.
+Asking one question or sixteen barely changes Jev's time: 430 milliseconds to 553.
+
+THE THREE LAYERS WE BUILT
+
+Layer one, the hands: our MCP server.
+Ten tools, each answering one business question. Five read: the branch scorecard, Jev triage, the root-cause rollup, a customer's full story, and the branch list. Five act: resolve a ticket, reply to a review, fix a loyalty balance, draft purchase orders, and flag a rider for coaching.
+The triage tool is where Jev lives. The rollup tool connects each cause to riders, deliveries, stock, suppliers and the loyalty ledger.
+Every change is logged.
+
+Layer two, the playbook: the Suki Pulse skill.
+It teaches Hermes three workflows: run a pulse check, fix the top root cause, and recover a customer.
+It sets the order of the tools and the rules: ask before any change, never take points away from a customer, and only quote real numbers.
+
+Layer three, the face: the desktop plugin.
+A Suki Pulse pane inside Hermes Desktop, with a branch picker, four buttons and shortcut commands.
+And two native result cards: the root causes, and the impact before and after.
+
+How they connect: you click Pulse check. The pane sends the request. Hermes loads the skill. The skill calls our tools. Jev labels the complaints, the tools find the causes, and the answer comes back to the same window as a card.
+One click, three layers, real data back on screen.
+
+WHAT YOU'LL SEE
+
+At Tomas Morato, one click triages 25 complaints for six hundredths of a cent.
+Late delivery leads. The evidence names the rider: 63 late out of 85, across 10 branches.
+Spoiled food traces to 41,224 pesos of stock expiring within three days.
+Then one more click fixes both sides: the rider is flagged, purchase orders are drafted with the supplier's real delivery time, points are corrected, the ticket is resolved, the review gets a reply.
+And the scorecard shows the impact.
+
+CLOSE
+
+Customer experience shows where it hurts. Operations shows why.
+Suki Pulse connects them, fixes both, and does it in seconds for cents.
+Hermes does the work. Jev makes it fast.
+
+Thank you.

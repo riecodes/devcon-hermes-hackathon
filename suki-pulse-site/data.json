@@ -1,0 +1,741 @@
+{
+ "generated_at_sandbox": "2026-09-30 21:00:00",
+ "engine": [
+  "jev-1.13.0"
+ ],
+ "items_triaged": 694,
+ "input_tokens": 388465,
+ "cost_usd": 0.016316,
+ "fallbacks": 0,
+ "seconds": 64.7,
+ "branches": [
+  {
+   "code": "ALB",
+   "name": "Suki Mart Alabang",
+   "has_delivery": 1,
+   "items": 91,
+   "high_churn": 12,
+   "causes": {
+    "late_delivery": 19,
+    "out_of_stock": 18,
+    "spoiled_damaged": 16,
+    "payment_refund": 16,
+    "loyalty": 12,
+    "promo": 4
+   },
+   "top_cause": "late_delivery",
+   "scorecard": {
+    "branch": "ALB - Suki Mart Alabang",
+    "open_tickets": 35,
+    "never_answered": 8,
+    "unreplied_low_reviews": 56,
+    "late_delivery_pct_30d": 33.7,
+    "loyalty_mismatches": 19,
+    "reorder_without_po": 21,
+    "perishables_expiring_3d_php": 131054,
+    "pulse_actions_taken": 0
+   },
+   "worst_rider": {
+    "rider_id": 5,
+    "rider": "Christian Lacson",
+    "deliveries_here": 43,
+    "late_here": 28,
+    "deliveries_all_branches": 85,
+    "late_all_branches": 63,
+    "branches_served": 10
+   },
+   "most_urgent_restock": {
+    "sku": "SM-BEV-0044",
+    "name": "Bottled Water 6L",
+    "on_hand": 0,
+    "reorder_point": 5,
+    "reorder_qty": 21,
+    "supplier": "Metro Beverage Distributors"
+   },
+   "sample": [
+    {
+     "ref": "review #365",
+     "causes": [
+      "payment_refund"
+     ],
+     "churn": 1.79,
+     "text": "Not again. App crashed at checkout and I was charged twice."
+    },
+    {
+     "ref": "review #574",
+     "causes": [
+      "loyalty"
+     ],
+     "churn": 1.86,
+     "text": "Not again. My points disappeared. Customer service never replied."
+    }
+   ]
+  },
+  {
+   "code": "BGC",
+   "name": "Suki Mart BGC High Street",
+   "has_delivery": 1,
+   "items": 92,
+   "high_churn": 13,
+   "causes": {
+    "payment_refund": 21,
+    "out_of_stock": 19,
+    "late_delivery": 17,
+    "spoiled_damaged": 15,
+    "loyalty": 9,
+    "promo": 3
+   },
+   "top_cause": "payment_refund",
+   "scorecard": {
+    "branch": "BGC - Suki Mart BGC High Street",
+    "open_tickets": 33,
+    "never_answered": 3,
+    "unreplied_low_reviews": 59,
+    "late_delivery_pct_30d": 33.1,
+    "loyalty_mismatches": 18,
+    "reorder_without_po": 3,
+    "perishables_expiring_3d_php": 121967,
+    "pulse_actions_taken": 0
+   },
+   "worst_rider": {
+    "rider_id": 5,
+    "rider": "Christian Lacson",
+    "deliveries_here": 7,
+    "late_here": 7,
+    "deliveries_all_branches": 85,
+    "late_all_branches": 63,
+    "branches_served": 10
+   },
+   "most_urgent_restock": {
+    "sku": "SM-CON-0132",
+    "name": "Shrimp Paste (Bagoong) 250g",
+    "on_hand": 3,
+    "reorder_point": 5,
+    "reorder_qty": 12,
+    "supplier": "Condimento Manila"
+   },
+   "sample": [
+    {
+     "ref": "review #354",
+     "causes": [
+      "loyalty"
+     ],
+     "churn": 1.85,
+     "text": "Not again. My points disappeared. Customer service never replied."
+    },
+    {
+     "ref": "review #1069",
+     "causes": [
+      "payment_refund"
+     ],
+     "churn": 1.57,
+     "text": "Please fix this. App crashed at checkout and I was charged twice."
+    }
+   ]
+  },
+  {
+   "code": "CUB",
+   "name": "Suki Mart Cubao",
+   "has_delivery": 1,
+   "items": 90,
+   "high_churn": 7,
+   "causes": {
+    "late_delivery": 55,
+    "spoiled_damaged": 35,
+    "payment_refund": 11,
+    "out_of_stock": 7,
+    "loyalty": 4,
+    "promo": 4
+   },
+   "top_cause": "late_delivery",
+   "scorecard": {
+    "branch": "CUB - Suki Mart Cubao",
+    "open_tickets": 30,
+    "never_answered": 3,
+    "unreplied_low_reviews": 60,
+    "late_delivery_pct_30d": 36.1,
+    "loyalty_mismatches": 18,
+    "reorder_without_po": 10,
+    "perishables_expiring_3d_php": 86015,
+    "pulse_actions_taken": 0
+   },
+   "worst_rider": {
+    "rider_id": 5,
+    "rider": "Christian Lacson",
+    "deliveries_here": 5,
+    "late_here": 4,
+    "deliveries_all_branches": 85,
+    "late_all_branches": 63,
+    "branches_served": 10
+   },
+   "most_urgent_restock": {
+    "sku": "SM-RIC-0077",
+    "name": "Jasmine Rice 5kg",
+    "on_hand": 3,
+    "reorder_point": 5,
+    "reorder_qty": 23,
+    "supplier": "Golden Grain Rice Mill"
+   },
+   "sample": [
+    {
+     "ref": "review #951",
+     "causes": [
+      "payment_refund"
+     ],
+     "churn": 1.8,
+     "text": "Not again. App crashed at checkout and I was charged twice."
+    },
+    {
+     "ref": "review #1917",
+     "causes": [
+      "late_delivery",
+      "spoiled_damaged"
+     ],
+     "churn": 1.67,
+     "text": "Not again. Delivery was more than an hour late. Ice cream melted."
+    }
+   ]
+  },
+  {
+   "code": "ERM",
+   "name": "Suki Mart Ermita",
+   "has_delivery": 0,
+   "items": 17,
+   "high_churn": 1,
+   "causes": {
+    "spoiled_damaged": 5,
+    "late_delivery": 3,
+    "promo": 2,
+    "payment_refund": 2,
+    "out_of_stock": 1,
+    "loyalty": 0
+   },
+   "top_cause": "spoiled_damaged",
+   "scorecard": {
+    "branch": "ERM - Suki Mart Ermita",
+    "open_tickets": 4,
+    "never_answered": 0,
+    "unreplied_low_reviews": 13,
+    "late_delivery_pct_30d": null,
+    "loyalty_mismatches": 5,
+    "reorder_without_po": 43,
+    "perishables_expiring_3d_php": 51074,
+    "pulse_actions_taken": 0
+   },
+   "worst_rider": null,
+   "most_urgent_restock": {
+    "sku": "SM-BEV-0044",
+    "name": "Bottled Water 6L",
+    "on_hand": 0,
+    "reorder_point": 5,
+    "reorder_qty": 15,
+    "supplier": "Metro Beverage Distributors"
+   },
+   "sample": [
+    {
+     "ref": "review #765",
+     "causes": [
+      "payment_refund"
+     ],
+     "churn": 1.78,
+     "text": "Not again. App crashed at checkout and I was charged twice."
+    },
+    {
+     "ref": "review #2173",
+     "causes": [
+      "late_delivery",
+      "spoiled_damaged"
+     ],
+     "churn": 1.2,
+     "text": "Hay naku. Delivery was more than an hour late. Ice cream melted."
+    }
+   ]
+  },
+  {
+   "code": "KAT",
+   "name": "Suki Mart Katipunan",
+   "has_delivery": 1,
+   "items": 50,
+   "high_churn": 9,
+   "causes": {
+    "spoiled_damaged": 10,
+    "out_of_stock": 10,
+    "late_delivery": 9,
+    "payment_refund": 9,
+    "loyalty": 4,
+    "promo": 2
+   },
+   "top_cause": "spoiled_damaged",
+   "scorecard": {
+    "branch": "KAT - Suki Mart Katipunan",
+    "open_tickets": 22,
+    "never_answered": 6,
+    "unreplied_low_reviews": 28,
+    "late_delivery_pct_30d": 34.2,
+    "loyalty_mismatches": 10,
+    "reorder_without_po": 23,
+    "perishables_expiring_3d_php": 62316,
+    "pulse_actions_taken": 0
+   },
+   "worst_rider": {
+    "rider_id": 5,
+    "rider": "Christian Lacson",
+    "deliveries_here": 4,
+    "late_here": 4,
+    "deliveries_all_branches": 85,
+    "late_all_branches": 63,
+    "branches_served": 10
+   },
+   "most_urgent_restock": {
+    "sku": "SM-BEV-0044",
+    "name": "Bottled Water 6L",
+    "on_hand": 0,
+    "reorder_point": 5,
+    "reorder_qty": 14,
+    "supplier": "Metro Beverage Distributors"
+   },
+   "sample": [
+    {
+     "ref": "review #2910",
+     "causes": [
+      "payment_refund"
+     ],
+     "churn": 1.55,
+     "text": "Please fix this. App crashed at checkout and I was charged twice."
+    },
+    {
+     "ref": "review #1001",
+     "causes": [
+      "spoiled_damaged"
+     ],
+     "churn": 1.64,
+     "text": "Not again. Messy aisles, expired items still on the shelf."
+    }
+   ]
+  },
+  {
+   "code": "KPT",
+   "name": "Suki Mart Kapitolyo",
+   "has_delivery": 1,
+   "items": 50,
+   "high_churn": 4,
+   "causes": {
+    "spoiled_damaged": 13,
+    "out_of_stock": 13,
+    "late_delivery": 9,
+    "payment_refund": 5,
+    "loyalty": 2,
+    "promo": 2
+   },
+   "top_cause": "spoiled_damaged",
+   "scorecard": {
+    "branch": "KPT - Suki Mart Kapitolyo",
+    "open_tickets": 25,
+    "never_answered": 7,
+    "unreplied_low_reviews": 25,
+    "late_delivery_pct_30d": 28.3,
+    "loyalty_mismatches": 18,
+    "reorder_without_po": 14,
+    "perishables_expiring_3d_php": 86217,
+    "pulse_actions_taken": 0
+   },
+   "worst_rider": {
+    "rider_id": 5,
+    "rider": "Christian Lacson",
+    "deliveries_here": 3,
+    "late_here": 3,
+    "deliveries_all_branches": 85,
+    "late_all_branches": 63,
+    "branches_served": 10
+   },
+   "most_urgent_restock": {
+    "sku": "SM-PRO-0006",
+    "name": "Kangkong bundle",
+    "on_hand": 0,
+    "reorder_point": 5,
+    "reorder_qty": 22,
+    "supplier": "Benguet Highland Farms"
+   },
+   "sample": [
+    {
+     "ref": "review #359",
+     "causes": [
+      "spoiled_damaged"
+     ],
+     "churn": 1.63,
+     "text": "Not again. Vegetables were wilted and the fish was not fresh."
+    },
+    {
+     "ref": "TKT-00007",
+     "causes": [
+      "late_delivery"
+     ],
+     "churn": 1.33,
+     "text": "Delivery arrived late. Still waiting for my delivery, nobody updates me."
+    }
+   ]
+  },
+  {
+   "code": "MAN",
+   "name": "Suki Mart Mandaluyong Shaw",
+   "has_delivery": 0,
+   "items": 25,
+   "high_churn": 4,
+   "causes": {
+    "spoiled_damaged": 4,
+    "late_delivery": 3,
+    "out_of_stock": 3,
+    "loyalty": 3,
+    "payment_refund": 3,
+    "promo": 2
+   },
+   "top_cause": "spoiled_damaged",
+   "scorecard": {
+    "branch": "MAN - Suki Mart Mandaluyong Shaw",
+    "open_tickets": 9,
+    "never_answered": 4,
+    "unreplied_low_reviews": 16,
+    "late_delivery_pct_30d": null,
+    "loyalty_mismatches": 10,
+    "reorder_without_po": 27,
+    "perishables_expiring_3d_php": 35961,
+    "pulse_actions_taken": 0
+   },
+   "worst_rider": null,
+   "most_urgent_restock": {
+    "sku": "SM-PRO-0015",
+    "name": "Lettuce head",
+    "on_hand": 0,
+    "reorder_point": 5,
+    "reorder_qty": 12,
+    "supplier": "Benguet Highland Farms"
+   },
+   "sample": [
+    {
+     "ref": "review #782",
+     "causes": [
+      "payment_refund"
+     ],
+     "churn": 1.81,
+     "text": "Not again. App crashed at checkout and I was charged twice."
+    },
+    {
+     "ref": "review #90",
+     "causes": [
+      "loyalty"
+     ],
+     "churn": 1.87,
+     "text": "Not again. My points disappeared. Customer service never replied."
+    }
+   ]
+  },
+  {
+   "code": "MKN",
+   "name": "Suki Mart Marikina",
+   "has_delivery": 1,
+   "items": 46,
+   "high_churn": 6,
+   "causes": {
+    "late_delivery": 12,
+    "spoiled_damaged": 8,
+    "loyalty": 7,
+    "payment_refund": 7,
+    "out_of_stock": 4,
+    "promo": 1
+   },
+   "top_cause": "late_delivery",
+   "scorecard": {
+    "branch": "MKN - Suki Mart Marikina",
+    "open_tickets": 18,
+    "never_answered": 2,
+    "unreplied_low_reviews": 28,
+    "late_delivery_pct_30d": 35.5,
+    "loyalty_mismatches": 9,
+    "reorder_without_po": 13,
+    "perishables_expiring_3d_php": 59462,
+    "pulse_actions_taken": 0
+   },
+   "worst_rider": {
+    "rider_id": 5,
+    "rider": "Christian Lacson",
+    "deliveries_here": 1,
+    "late_here": 1,
+    "deliveries_all_branches": 85,
+    "late_all_branches": 63,
+    "branches_served": 10
+   },
+   "most_urgent_restock": {
+    "sku": "SM-COF-0091",
+    "name": "Hotdog Jumbo 1kg",
+    "on_hand": 1,
+    "reorder_point": 8,
+    "reorder_qty": 31,
+    "supplier": "Mindanao Coffee Traders"
+   },
+   "sample": [
+    {
+     "ref": "review #2208",
+     "causes": [
+      "payment_refund"
+     ],
+     "churn": 1.8,
+     "text": "Not again. App crashed at checkout and I was charged twice."
+    },
+    {
+     "ref": "review #3044",
+     "causes": [
+      "loyalty"
+     ],
+     "churn": 1.85,
+     "text": "Not again. My points disappeared. Customer service never replied."
+    }
+   ]
+  },
+  {
+   "code": "MKT",
+   "name": "Suki Mart Makati Legazpi",
+   "has_delivery": 1,
+   "items": 75,
+   "high_churn": 10,
+   "causes": {
+    "spoiled_damaged": 21,
+    "payment_refund": 16,
+    "late_delivery": 14,
+    "out_of_stock": 12,
+    "loyalty": 11,
+    "promo": 2
+   },
+   "top_cause": "spoiled_damaged",
+   "scorecard": {
+    "branch": "MKT - Suki Mart Makati Legazpi",
+    "open_tickets": 29,
+    "never_answered": 6,
+    "unreplied_low_reviews": 46,
+    "late_delivery_pct_30d": 30.8,
+    "loyalty_mismatches": 13,
+    "reorder_without_po": 11,
+    "perishables_expiring_3d_php": 85561,
+    "pulse_actions_taken": 0
+   },
+   "worst_rider": {
+    "rider_id": 5,
+    "rider": "Christian Lacson",
+    "deliveries_here": 6,
+    "late_here": 5,
+    "deliveries_all_branches": 85,
+    "late_all_branches": 63,
+    "branches_served": 10
+   },
+   "most_urgent_restock": {
+    "sku": "SM-FRO-0114",
+    "name": "Ice Cream Ube 1.3L",
+    "on_hand": 2,
+    "reorder_point": 7,
+    "reorder_qty": 24,
+    "supplier": "Frostline Frozen Foods"
+   },
+   "sample": [
+    {
+     "ref": "review #1764",
+     "causes": [
+      "payment_refund"
+     ],
+     "churn": 1.81,
+     "text": "Not again. App crashed at checkout and I was charged twice."
+    },
+    {
+     "ref": "review #612",
+     "causes": [
+      "loyalty"
+     ],
+     "churn": 1.84,
+     "text": "Not again. My points disappeared. Customer service never replied."
+    }
+   ]
+  },
+  {
+   "code": "ORT",
+   "name": "Suki Mart Ortigas Center",
+   "has_delivery": 1,
+   "items": 68,
+   "high_churn": 3,
+   "causes": {
+    "late_delivery": 39,
+    "spoiled_damaged": 18,
+    "payment_refund": 10,
+    "out_of_stock": 6,
+    "loyalty": 5,
+    "promo": 2
+   },
+   "top_cause": "late_delivery",
+   "scorecard": {
+    "branch": "ORT - Suki Mart Ortigas Center",
+    "open_tickets": 22,
+    "never_answered": 1,
+    "unreplied_low_reviews": 46,
+    "late_delivery_pct_30d": 37.4,
+    "loyalty_mismatches": 4,
+    "reorder_without_po": 23,
+    "perishables_expiring_3d_php": 107298,
+    "pulse_actions_taken": 0
+   },
+   "worst_rider": {
+    "rider_id": 5,
+    "rider": "Christian Lacson",
+    "deliveries_here": 7,
+    "late_here": 5,
+    "deliveries_all_branches": 85,
+    "late_all_branches": 63,
+    "branches_served": 10
+   },
+   "most_urgent_restock": {
+    "sku": "SM-SNA-0053",
+    "name": "Banana Chips 200g",
+    "on_hand": 0,
+    "reorder_point": 12,
+    "reorder_qty": 42,
+    "supplier": "Pinoy Snack Makers Inc."
+   },
+   "sample": [
+    {
+     "ref": "review #1809",
+     "causes": [
+      "payment_refund"
+     ],
+     "churn": 1.81,
+     "text": "Not again. App crashed at checkout and I was charged twice."
+    },
+    {
+     "ref": "review #2953",
+     "causes": [],
+     "churn": 1.52,
+     "text": "Not again. Store smells bad and floors are sticky."
+    }
+   ]
+  },
+  {
+   "code": "PQE",
+   "name": "Suki Mart Parañaque BF",
+   "has_delivery": 1,
+   "items": 53,
+   "high_churn": 3,
+   "causes": {
+    "payment_refund": 9,
+    "spoiled_damaged": 8,
+    "promo": 8,
+    "late_delivery": 7,
+    "out_of_stock": 7,
+    "loyalty": 6
+   },
+   "top_cause": "payment_refund",
+   "scorecard": {
+    "branch": "PQE - Suki Mart Parañaque BF",
+    "open_tickets": 22,
+    "never_answered": 3,
+    "unreplied_low_reviews": 31,
+    "late_delivery_pct_30d": 29.9,
+    "loyalty_mismatches": 12,
+    "reorder_without_po": 14,
+    "perishables_expiring_3d_php": 83093,
+    "pulse_actions_taken": 0
+   },
+   "worst_rider": {
+    "rider_id": 5,
+    "rider": "Christian Lacson",
+    "deliveries_here": 7,
+    "late_here": 5,
+    "deliveries_all_branches": 85,
+    "late_all_branches": 63,
+    "branches_served": 10
+   },
+   "most_urgent_restock": {
+    "sku": "SM-PRO-0004",
+    "name": "Potatoes kg",
+    "on_hand": 8,
+    "reorder_point": 16,
+    "reorder_qty": 36,
+    "supplier": "Benguet Highland Farms"
+   },
+   "sample": [
+    {
+     "ref": "review #2175",
+     "causes": [
+      "payment_refund"
+     ],
+     "churn": 1.81,
+     "text": "Not again. App crashed at checkout and I was charged twice."
+    },
+    {
+     "ref": "review #1406",
+     "causes": [
+      "loyalty"
+     ],
+     "churn": 1.85,
+     "text": "Not again. My points disappeared. Customer service never replied."
+    }
+   ]
+  },
+  {
+   "code": "TMR",
+   "name": "Suki Mart Tomas Morato",
+   "has_delivery": 1,
+   "items": 37,
+   "high_churn": 3,
+   "causes": {
+    "late_delivery": 16,
+    "spoiled_damaged": 9,
+    "out_of_stock": 6,
+    "loyalty": 4,
+    "payment_refund": 3,
+    "promo": 1
+   },
+   "top_cause": "late_delivery",
+   "scorecard": {
+    "branch": "TMR - Suki Mart Tomas Morato",
+    "open_tickets": 15,
+    "never_answered": 3,
+    "unreplied_low_reviews": 22,
+    "late_delivery_pct_30d": 47.3,
+    "loyalty_mismatches": 6,
+    "reorder_without_po": 22,
+    "perishables_expiring_3d_php": 41224,
+    "pulse_actions_taken": 0
+   },
+   "worst_rider": {
+    "rider_id": 5,
+    "rider": "Christian Lacson",
+    "deliveries_here": 2,
+    "late_here": 1,
+    "deliveries_all_branches": 85,
+    "late_all_branches": 63,
+    "branches_served": 10
+   },
+   "most_urgent_restock": {
+    "sku": "SM-HOU-0095",
+    "name": "Fabric Conditioner 1L",
+    "on_hand": 7,
+    "reorder_point": 13,
+    "reorder_qty": 37,
+    "supplier": "CleanHome Distributors"
+   },
+   "sample": [
+    {
+     "ref": "review #959",
+     "causes": [
+      "payment_refund"
+     ],
+     "churn": 1.47,
+     "text": "Please fix this. App crashed at checkout and I was charged twice."
+    },
+    {
+     "ref": "review #270",
+     "causes": [
+      "loyalty"
+     ],
+     "churn": 1.51,
+     "text": "Disappointed. My points disappeared. Customer service never replied."
+    }
+   ]
+  }
+ ]
+}

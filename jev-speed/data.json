@@ -1,0 +1,1537 @@
+{
+ "measured_at_utc": "2026-10-02 12:56 UTC",
+ "where": "rieLaptop, Avtica office, Makati (each call includes a fresh HTTPS connection)",
+ "models": {
+  "jev": "jev-1.13.0",
+  "llm": "claude-haiku-4-5 via OpenCode Zen"
+ },
+ "questions_per_call": 8,
+ "prices_per_mtok": {
+  "jev_in": 0.042,
+  "jev_out": 0.0,
+  "llm_in": 1.0,
+  "llm_out": 5.0
+ },
+ "items": [
+  {
+   "i": 0,
+   "src": "review",
+   "id": 61,
+   "branch": "ALB",
+   "text": "Disappointed. App crashed at checkout and I was charged twice.",
+   "jev_top": "payment_refund",
+   "llm_top": "payment_refund"
+  },
+  {
+   "i": 1,
+   "src": "review",
+   "id": 1029,
+   "branch": "BGC",
+   "text": "Hay naku. Store smells bad and floors are sticky.",
+   "jev_top": "spoiled_damaged",
+   "llm_top": "spoiled_damaged"
+  },
+  {
+   "i": 2,
+   "src": "ticket",
+   "id": 271,
+   "branch": "MKT",
+   "text": "Received wrong item. Wrong brand was delivered, please replace.",
+   "jev_top": "out_of_stock",
+   "llm_top": "out_of_stock"
+  },
+  {
+   "i": 3,
+   "src": "ticket",
+   "id": 1001,
+   "branch": "ALB",
+   "text": "Loyalty points issue. My points from last week's purchase were not credited.",
+   "jev_top": "loyalty",
+   "llm_top": "loyalty"
+  },
+  {
+   "i": 4,
+   "src": "ticket",
+   "id": 1239,
+   "branch": "ALB",
+   "text": "In-store experience. Staff was rude when I asked for help.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 5,
+   "src": "review",
+   "id": 1591,
+   "branch": "MAN",
+   "text": "Not again. Only one cashier open during rush hour. Long queue.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 6,
+   "src": "ticket",
+   "id": 1581,
+   "branch": "BGC",
+   "text": "Loyalty points issue. My points from last week's purchase were not credited.",
+   "jev_top": "loyalty",
+   "llm_top": "loyalty"
+  },
+  {
+   "i": 7,
+   "src": "review",
+   "id": 462,
+   "branch": "KAT",
+   "text": "Please fix this. Out of stock again. Third time this week.",
+   "jev_top": "out_of_stock",
+   "llm_top": "out_of_stock"
+  },
+  {
+   "i": 8,
+   "src": "review",
+   "id": 1915,
+   "branch": "ALB",
+   "text": "Needs improvement. My points disappeared. Customer service never replied.",
+   "jev_top": "loyalty",
+   "llm_top": "loyalty"
+  },
+  {
+   "i": 9,
+   "src": "ticket",
+   "id": 606,
+   "branch": "ALB",
+   "text": "Loyalty points issue. My points from last week's purchase were not credited.",
+   "jev_top": "loyalty",
+   "llm_top": "loyalty"
+  },
+  {
+   "i": 10,
+   "src": "review",
+   "id": 2037,
+   "branch": "TMR",
+   "text": "Hay naku. Only one cashier open during rush hour. Long queue.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 11,
+   "src": "review",
+   "id": 82,
+   "branch": "MAN",
+   "text": "Please fix this. Vegetables were wilted and the fish was not fresh.",
+   "jev_top": "spoiled_damaged",
+   "llm_top": "spoiled_damaged"
+  },
+  {
+   "i": 12,
+   "src": "ticket",
+   "id": 1108,
+   "branch": "MKT",
+   "text": "Loyalty points issue. Triple points promo not reflected on my card.",
+   "jev_top": "loyalty",
+   "llm_top": "loyalty"
+  },
+  {
+   "i": 13,
+   "src": "ticket",
+   "id": 660,
+   "branch": "BGC",
+   "text": "Missing item in my order. Two items missing from my delivery.",
+   "jev_top": "out_of_stock",
+   "llm_top": "out_of_stock"
+  },
+  {
+   "i": 14,
+   "src": "review",
+   "id": 1682,
+   "branch": "PQE",
+   "text": "Not again. Rider could not find our place and cancelled.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 15,
+   "src": "ticket",
+   "id": 632,
+   "branch": "ORT",
+   "text": "Delivery arrived late. My order came 76 minutes late and the frozen items were soft.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 16,
+   "src": "ticket",
+   "id": 548,
+   "branch": "ALB",
+   "text": "App issue. Delivery tracking map is not loading.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 17,
+   "src": "review",
+   "id": 2300,
+   "branch": "ERM",
+   "text": "Disappointed. Rider could not find our place and cancelled.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 18,
+   "src": "ticket",
+   "id": 1505,
+   "branch": "BGC",
+   "text": "Received wrong item. Wrong brand was delivered, please replace.",
+   "jev_top": "out_of_stock",
+   "llm_top": "out_of_stock"
+  },
+  {
+   "i": 19,
+   "src": "ticket",
+   "id": 718,
+   "branch": "PQE",
+   "text": "Promo code not working. Code SUKI100 says invalid at checkout.",
+   "jev_top": "promo",
+   "llm_top": "promo"
+  },
+  {
+   "i": 20,
+   "src": "ticket",
+   "id": 1045,
+   "branch": "CUB",
+   "text": "Delivery arrived late. My order came 118 minutes late and the frozen items were soft.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 21,
+   "src": "ticket",
+   "id": 1412,
+   "branch": "BGC",
+   "text": "Promo code not working. Discount was not applied even though I met the minimum spend.",
+   "jev_top": "promo",
+   "llm_top": "promo"
+  },
+  {
+   "i": 22,
+   "src": "ticket",
+   "id": 209,
+   "branch": "MKN",
+   "text": "App issue. The app keeps logging me out.",
+   "jev_top": "loyalty",
+   "llm_top": "payment_refund"
+  },
+  {
+   "i": 23,
+   "src": "ticket",
+   "id": 983,
+   "branch": "MKT",
+   "text": "Loyalty points issue. My points from last week's purchase were not credited.",
+   "jev_top": "loyalty",
+   "llm_top": "loyalty"
+  },
+  {
+   "i": 24,
+   "src": "review",
+   "id": 502,
+   "branch": "BGC",
+   "text": "Hay naku. Only one cashier open during rush hour. Long queue.",
+   "jev_top": "out_of_stock",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 25,
+   "src": "review",
+   "id": 376,
+   "branch": "KAT",
+   "text": "Hay naku. Bread was stale when I bought it.",
+   "jev_top": "spoiled_damaged",
+   "llm_top": "spoiled_damaged"
+  },
+  {
+   "i": 26,
+   "src": "ticket",
+   "id": 737,
+   "branch": "MKN",
+   "text": "Rider complaint. Rider left the order at the gate without calling.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 27,
+   "src": "ticket",
+   "id": 201,
+   "branch": "ORT",
+   "text": "Payment problem. GCash payment is stuck on pending.",
+   "jev_top": "payment_refund",
+   "llm_top": "payment_refund"
+  },
+  {
+   "i": 28,
+   "src": "review",
+   "id": 2538,
+   "branch": "CUB",
+   "text": "Needs improvement. Delivery was more than an hour late. Ice cream melted.",
+   "jev_top": "late_delivery",
+   "llm_top": "spoiled_damaged"
+  },
+  {
+   "i": 29,
+   "src": "ticket",
+   "id": 420,
+   "branch": "PQE",
+   "text": "Promo code not working. Promo RICE30 applied the wrong amount.",
+   "jev_top": "promo",
+   "llm_top": "promo"
+  },
+  {
+   "i": 30,
+   "src": "review",
+   "id": 131,
+   "branch": "CUB",
+   "text": "Disappointed. My points disappeared. Customer service never replied.",
+   "jev_top": "loyalty",
+   "llm_top": "loyalty"
+  },
+  {
+   "i": 31,
+   "src": "ticket",
+   "id": 862,
+   "branch": "CUB",
+   "text": "Delivery arrived late. My order came 82 minutes late and the frozen items were soft.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 32,
+   "src": "ticket",
+   "id": 98,
+   "branch": "BGC",
+   "text": "Rider complaint. Rider left the order at the gate without calling.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 33,
+   "src": "ticket",
+   "id": 1075,
+   "branch": "MKT",
+   "text": "Promo code not working. Promo RICE30 applied the wrong amount.",
+   "jev_top": "promo",
+   "llm_top": "promo"
+  },
+  {
+   "i": 34,
+   "src": "ticket",
+   "id": 163,
+   "branch": "ALB",
+   "text": "Received wrong item. Wrong brand was delivered, please replace.",
+   "jev_top": "out_of_stock",
+   "llm_top": "out_of_stock"
+  },
+  {
+   "i": 35,
+   "src": "ticket",
+   "id": 374,
+   "branch": "MKN",
+   "text": "Delivery arrived late. Still waiting for my delivery, nobody updates me.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 36,
+   "src": "ticket",
+   "id": 1563,
+   "branch": "BGC",
+   "text": "Refund request. Please refund my cancelled order, it's been a week.",
+   "jev_top": "payment_refund",
+   "llm_top": "payment_refund"
+  },
+  {
+   "i": 37,
+   "src": "ticket",
+   "id": 813,
+   "branch": "KPT",
+   "text": "Damaged / spoiled item. Calamansi 250g was already spoiled on delivery.",
+   "jev_top": "spoiled_damaged",
+   "llm_top": "spoiled_damaged"
+  },
+  {
+   "i": 38,
+   "src": "ticket",
+   "id": 171,
+   "branch": "CUB",
+   "text": "Delivery arrived late. My order came 46 minutes late and the frozen items were soft.",
+   "jev_top": "late_delivery",
+   "llm_top": "late_delivery"
+  },
+  {
+   "i": 39,
+   "src": "review",
+   "id": 883,
+   "branch": "ALB",
+   "text": "Disappointed. Store smells bad and floors are sticky.",
+   "jev_top": "spoiled_damaged",
+   "llm_top": "spoiled_damaged"
+  }
+ ],
+ "jev_seq": [
+  {
+   "ms": 729.0,
+   "tokens_in": 557,
+   "tokens_out": 0,
+   "top": "payment_refund",
+   "i": 0,
+   "start_ms": 0.0
+  },
+  {
+   "ms": 410.7,
+   "tokens_in": 556,
+   "tokens_out": 0,
+   "top": "spoiled_damaged",
+   "i": 1,
+   "start_ms": 729.6
+  },
+  {
+   "ms": 455.8,
+   "tokens_in": 555,
+   "tokens_out": 0,
+   "top": "out_of_stock",
+   "i": 2,
+   "start_ms": 1140.6
+  },
+  {
+   "ms": 1092.9,
+   "tokens_in": 561,
+   "tokens_out": 0,
+   "top": "loyalty",
+   "i": 3,
+   "start_ms": 1596.6
+  },
+  {
+   "ms": 807.9,
+   "tokens_in": 557,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 4,
+   "start_ms": 2689.8
+  },
+  {
+   "ms": 479.3,
+   "tokens_in": 558,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 5,
+   "start_ms": 3498.0
+  },
+  {
+   "ms": 507.5,
+   "tokens_in": 561,
+   "tokens_out": 0,
+   "top": "loyalty",
+   "i": 6,
+   "start_ms": 3977.7
+  },
+  {
+   "ms": 616.7,
+   "tokens_in": 557,
+   "tokens_out": 0,
+   "top": "out_of_stock",
+   "i": 7,
+   "start_ms": 4485.6
+  },
+  {
+   "ms": 580.5,
+   "tokens_in": 556,
+   "tokens_out": 0,
+   "top": "loyalty",
+   "i": 8,
+   "start_ms": 5102.6
+  },
+  {
+   "ms": 472.7,
+   "tokens_in": 560,
+   "tokens_out": 0,
+   "top": "loyalty",
+   "i": 9,
+   "start_ms": 5683.5
+  },
+  {
+   "ms": 861.6,
+   "tokens_in": 559,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 10,
+   "start_ms": 6156.5
+  },
+  {
+   "ms": 479.7,
+   "tokens_in": 559,
+   "tokens_out": 0,
+   "top": "spoiled_damaged",
+   "i": 11,
+   "start_ms": 7018.4
+  },
+  {
+   "ms": 1881.5,
+   "tokens_in": 559,
+   "tokens_out": 0,
+   "top": "loyalty",
+   "i": 12,
+   "start_ms": 7498.4
+  },
+  {
+   "ms": 656.1,
+   "tokens_in": 556,
+   "tokens_out": 0,
+   "top": "out_of_stock",
+   "i": 13,
+   "start_ms": 9380.4
+  },
+  {
+   "ms": 922.0,
+   "tokens_in": 556,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 14,
+   "start_ms": 10036.9
+  },
+  {
+   "ms": 497.4,
+   "tokens_in": 562,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 15,
+   "start_ms": 10959.2
+  },
+  {
+   "ms": 1404.8,
+   "tokens_in": 553,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 16,
+   "start_ms": 11456.9
+  },
+  {
+   "ms": 460.0,
+   "tokens_in": 558,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 17,
+   "start_ms": 12862.0
+  },
+  {
+   "ms": 476.2,
+   "tokens_in": 556,
+   "tokens_out": 0,
+   "top": "out_of_stock",
+   "i": 18,
+   "start_ms": 13322.4
+  },
+  {
+   "ms": 695.9,
+   "tokens_in": 559,
+   "tokens_out": 0,
+   "top": "promo",
+   "i": 19,
+   "start_ms": 13798.9
+  },
+  {
+   "ms": 833.4,
+   "tokens_in": 564,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 20,
+   "start_ms": 14495.0
+  },
+  {
+   "ms": 500.7,
+   "tokens_in": 561,
+   "tokens_out": 0,
+   "top": "promo",
+   "i": 21,
+   "start_ms": 15328.7
+  },
+  {
+   "ms": 646.5,
+   "tokens_in": 553,
+   "tokens_out": 0,
+   "top": "loyalty",
+   "i": 22,
+   "start_ms": 15829.7
+  },
+  {
+   "ms": 410.1,
+   "tokens_in": 560,
+   "tokens_out": 0,
+   "top": "loyalty",
+   "i": 23,
+   "start_ms": 16476.5
+  },
+  {
+   "ms": 465.6,
+   "tokens_in": 558,
+   "tokens_out": 0,
+   "top": "out_of_stock",
+   "i": 24,
+   "start_ms": 16886.9
+  },
+  {
+   "ms": 1397.2,
+   "tokens_in": 555,
+   "tokens_out": 0,
+   "top": "spoiled_damaged",
+   "i": 25,
+   "start_ms": 17352.7
+  },
+  {
+   "ms": 428.1,
+   "tokens_in": 556,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 26,
+   "start_ms": 18750.2
+  },
+  {
+   "ms": 568.4,
+   "tokens_in": 554,
+   "tokens_out": 0,
+   "top": "payment_refund",
+   "i": 27,
+   "start_ms": 19178.5
+  },
+  {
+   "ms": 1546.9,
+   "tokens_in": 559,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 28,
+   "start_ms": 19747.2
+  },
+  {
+   "ms": 618.7,
+   "tokens_in": 558,
+   "tokens_out": 0,
+   "top": "promo",
+   "i": 29,
+   "start_ms": 21294.3
+  },
+  {
+   "ms": 742.9,
+   "tokens_in": 557,
+   "tokens_out": 0,
+   "top": "loyalty",
+   "i": 30,
+   "start_ms": 21913.4
+  },
+  {
+   "ms": 599.1,
+   "tokens_in": 562,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 31,
+   "start_ms": 22656.6
+  },
+  {
+   "ms": 473.1,
+   "tokens_in": 555,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 32,
+   "start_ms": 23255.9
+  },
+  {
+   "ms": 417.5,
+   "tokens_in": 559,
+   "tokens_out": 0,
+   "top": "promo",
+   "i": 33,
+   "start_ms": 23729.2
+  },
+  {
+   "ms": 621.1,
+   "tokens_in": 555,
+   "tokens_out": 0,
+   "top": "out_of_stock",
+   "i": 34,
+   "start_ms": 24147.0
+  },
+  {
+   "ms": 586.2,
+   "tokens_in": 557,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 35,
+   "start_ms": 24768.3
+  },
+  {
+   "ms": 412.9,
+   "tokens_in": 560,
+   "tokens_out": 0,
+   "top": "payment_refund",
+   "i": 36,
+   "start_ms": 25354.6
+  },
+  {
+   "ms": 537.8,
+   "tokens_in": 563,
+   "tokens_out": 0,
+   "top": "spoiled_damaged",
+   "i": 37,
+   "start_ms": 25767.7
+  },
+  {
+   "ms": 398.5,
+   "tokens_in": 562,
+   "tokens_out": 0,
+   "top": "late_delivery",
+   "i": 38,
+   "start_ms": 26305.7
+  },
+  {
+   "ms": 763.0,
+   "tokens_in": 556,
+   "tokens_out": 0,
+   "top": "spoiled_damaged",
+   "i": 39,
+   "start_ms": 26704.3
+  }
+ ],
+ "llm_seq": [
+  {
+   "ms": 2689.2,
+   "tokens_in": 308,
+   "tokens_out": 104,
+   "top": "payment_refund",
+   "i": 0,
+   "start_ms": 0.0
+  },
+  {
+   "ms": 2555.4,
+   "tokens_in": 310,
+   "tokens_out": 104,
+   "top": "spoiled_damaged",
+   "i": 1,
+   "start_ms": 2689.5
+  },
+  {
+   "ms": 4817.0,
+   "tokens_in": 308,
+   "tokens_out": 100,
+   "top": "out_of_stock",
+   "i": 2,
+   "start_ms": 5245.1
+  },
+  {
+   "ms": 2576.7,
+   "tokens_in": 312,
+   "tokens_out": 104,
+   "top": "loyalty",
+   "i": 3,
+   "start_ms": 10062.3
+  },
+  {
+   "ms": 1877.4,
+   "tokens_in": 311,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 4,
+   "start_ms": 12639.1
+  },
+  {
+   "ms": 2136.2,
+   "tokens_in": 311,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 5,
+   "start_ms": 14516.6
+  },
+  {
+   "ms": 3058.3,
+   "tokens_in": 312,
+   "tokens_out": 104,
+   "top": "loyalty",
+   "i": 6,
+   "start_ms": 16653.0
+  },
+  {
+   "ms": 3043.0,
+   "tokens_in": 309,
+   "tokens_out": 104,
+   "top": "out_of_stock",
+   "i": 7,
+   "start_ms": 19711.5
+  },
+  {
+   "ms": 5133.1,
+   "tokens_in": 309,
+   "tokens_out": 104,
+   "top": "loyalty",
+   "i": 8,
+   "start_ms": 22754.6
+  },
+  {
+   "ms": 2295.7,
+   "tokens_in": 311,
+   "tokens_out": 96,
+   "top": "loyalty",
+   "i": 9,
+   "start_ms": 27887.8
+  },
+  {
+   "ms": 1823.1,
+   "tokens_in": 313,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 10,
+   "start_ms": 30183.7
+  },
+  {
+   "ms": 2183.7,
+   "tokens_in": 311,
+   "tokens_out": 104,
+   "top": "spoiled_damaged",
+   "i": 11,
+   "start_ms": 32007.0
+  },
+  {
+   "ms": 2345.4,
+   "tokens_in": 311,
+   "tokens_out": 104,
+   "top": "loyalty",
+   "i": 12,
+   "start_ms": 34190.8
+  },
+  {
+   "ms": 2205.8,
+   "tokens_in": 308,
+   "tokens_out": 104,
+   "top": "out_of_stock",
+   "i": 13,
+   "start_ms": 36536.5
+  },
+  {
+   "ms": 2710.4,
+   "tokens_in": 309,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 14,
+   "start_ms": 38742.6
+  },
+  {
+   "ms": 2153.9,
+   "tokens_in": 315,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 15,
+   "start_ms": 41453.8
+  },
+  {
+   "ms": 5118.9,
+   "tokens_in": 306,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 16,
+   "start_ms": 43608.3
+  },
+  {
+   "ms": 2363.7,
+   "tokens_in": 309,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 17,
+   "start_ms": 48727.3
+  },
+  {
+   "ms": 2020.7,
+   "tokens_in": 309,
+   "tokens_out": 104,
+   "top": "out_of_stock",
+   "i": 18,
+   "start_ms": 51091.3
+  },
+  {
+   "ms": 3086.8,
+   "tokens_in": 313,
+   "tokens_out": 104,
+   "top": "promo",
+   "i": 19,
+   "start_ms": 53112.3
+  },
+  {
+   "ms": 1997.4,
+   "tokens_in": 316,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 20,
+   "start_ms": 56199.3
+  },
+  {
+   "ms": 2090.3,
+   "tokens_in": 316,
+   "tokens_out": 104,
+   "top": "promo",
+   "i": 21,
+   "start_ms": 58196.9
+  },
+  {
+   "ms": 2212.7,
+   "tokens_in": 305,
+   "tokens_out": 104,
+   "top": "payment_refund",
+   "i": 22,
+   "start_ms": 60287.5
+  },
+  {
+   "ms": 2136.0,
+   "tokens_in": 311,
+   "tokens_out": 104,
+   "top": "loyalty",
+   "i": 23,
+   "start_ms": 62500.5
+  },
+  {
+   "ms": 2287.7,
+   "tokens_in": 312,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 24,
+   "start_ms": 64636.7
+  },
+  {
+   "ms": 2060.4,
+   "tokens_in": 310,
+   "tokens_out": 104,
+   "top": "spoiled_damaged",
+   "i": 25,
+   "start_ms": 66924.8
+  },
+  {
+   "ms": 4018.1,
+   "tokens_in": 310,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 26,
+   "start_ms": 68985.5
+  },
+  {
+   "ms": 1877.4,
+   "tokens_in": 307,
+   "tokens_out": 104,
+   "top": "payment_refund",
+   "i": 27,
+   "start_ms": 73003.9
+  },
+  {
+   "ms": 1954.9,
+   "tokens_in": 314,
+   "tokens_out": 104,
+   "top": "spoiled_damaged",
+   "i": 28,
+   "start_ms": 74881.5
+  },
+  {
+   "ms": 2757.9,
+   "tokens_in": 314,
+   "tokens_out": 104,
+   "top": "promo",
+   "i": 29,
+   "start_ms": 76836.6
+  },
+  {
+   "ms": 2046.8,
+   "tokens_in": 307,
+   "tokens_out": 104,
+   "top": "loyalty",
+   "i": 30,
+   "start_ms": 79594.7
+  },
+  {
+   "ms": 3716.8,
+   "tokens_in": 315,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 31,
+   "start_ms": 81641.6
+  },
+  {
+   "ms": 2835.9,
+   "tokens_in": 310,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 32,
+   "start_ms": 85358.7
+  },
+  {
+   "ms": 1912.9,
+   "tokens_in": 315,
+   "tokens_out": 104,
+   "top": "promo",
+   "i": 33,
+   "start_ms": 88194.9
+  },
+  {
+   "ms": 1884.3,
+   "tokens_in": 308,
+   "tokens_out": 104,
+   "top": "out_of_stock",
+   "i": 34,
+   "start_ms": 90108.1
+  },
+  {
+   "ms": 2025.6,
+   "tokens_in": 310,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 35,
+   "start_ms": 91992.6
+  },
+  {
+   "ms": 5142.4,
+   "tokens_in": 314,
+   "tokens_out": 104,
+   "top": "payment_refund",
+   "i": 36,
+   "start_ms": 94018.4
+  },
+  {
+   "ms": 1985.0,
+   "tokens_in": 317,
+   "tokens_out": 104,
+   "top": "spoiled_damaged",
+   "i": 37,
+   "start_ms": 99161.1
+  },
+  {
+   "ms": 2467.3,
+   "tokens_in": 315,
+   "tokens_out": 104,
+   "top": "late_delivery",
+   "i": 38,
+   "start_ms": 101146.4
+  },
+  {
+   "ms": 2059.0,
+   "tokens_in": 307,
+   "tokens_out": 104,
+   "top": "spoiled_damaged",
+   "i": 39,
+   "start_ms": 103614.0
+  }
+ ],
+ "summary": {
+  "jev": {
+   "n": 40,
+   "errors": 0,
+   "p50": 586.2,
+   "p95": 1404.8,
+   "mean": 686.4,
+   "min": 398.5,
+   "max": 1881.5,
+   "total_ms": 27455.9,
+   "tokens_in": 22319,
+   "tokens_out": 0,
+   "cost_usd": 0.000937,
+   "cost_per_call": 2.343e-05
+  },
+  "llm": {
+   "n": 40,
+   "errors": 0,
+   "p50": 2287.7,
+   "p95": 5118.9,
+   "mean": 2641.6,
+   "min": 1823.1,
+   "max": 5142.4,
+   "total_ms": 105663.2,
+   "tokens_in": 12438,
+   "tokens_out": 4148,
+   "cost_usd": 0.033178,
+   "cost_per_call": 0.00082945
+  },
+  "top_cause_agreement": 0.925
+ },
+ "scaling": [
+  {
+   "questions": 1,
+   "p50": 429.5,
+   "samples": [
+    429.5,
+    1014.3,
+    401.7,
+    449.0,
+    378.6,
+    445.3
+   ],
+   "tokens_in_avg": 319
+  },
+  {
+   "questions": 2,
+   "p50": 481.7,
+   "samples": [
+    481.7,
+    653.4,
+    606.7,
+    573.9,
+    478.6,
+    432.2
+   ],
+   "tokens_in_avg": 346
+  },
+  {
+   "questions": 4,
+   "p50": 488.7,
+   "samples": [
+    3064.8,
+    488.7,
+    431.2,
+    1215.0,
+    503.5,
+    459.8
+   ],
+   "tokens_in_avg": 411
+  },
+  {
+   "questions": 8,
+   "p50": 435.7,
+   "samples": [
+    419.8,
+    435.7,
+    380.6,
+    505.2,
+    5892.0,
+    440.1
+   ],
+   "tokens_in_avg": 557
+  },
+  {
+   "questions": 16,
+   "p50": 553.4,
+   "samples": [
+    415.3,
+    421.9,
+    680.2,
+    1408.7,
+    553.4,
+    1855.6
+   ],
+   "tokens_in_avg": 685
+  }
+ ],
+ "burst": {
+  "concurrency": 8,
+  "n": 40,
+  "ok": 40,
+  "wall_ms": 4865.7,
+  "per_sec": 8.22,
+  "rows": [
+   {
+    "start_ms": 1.3,
+    "end_ms": 709.7,
+    "ok": true
+   },
+   {
+    "start_ms": 1.9,
+    "end_ms": 670.8,
+    "ok": true
+   },
+   {
+    "start_ms": 28.7,
+    "end_ms": 710.5,
+    "ok": true
+   },
+   {
+    "start_ms": 117.8,
+    "end_ms": 711.4,
+    "ok": true
+   },
+   {
+    "start_ms": 184.1,
+    "end_ms": 1747.1,
+    "ok": true
+   },
+   {
+    "start_ms": 195.4,
+    "end_ms": 909.7,
+    "ok": true
+   },
+   {
+    "start_ms": 270.6,
+    "end_ms": 858.8,
+    "ok": true
+   },
+   {
+    "start_ms": 289.9,
+    "end_ms": 846.1,
+    "ok": true
+   },
+   {
+    "start_ms": 670.8,
+    "end_ms": 1259.7,
+    "ok": true
+   },
+   {
+    "start_ms": 709.7,
+    "end_ms": 1357.9,
+    "ok": true
+   },
+   {
+    "start_ms": 710.5,
+    "end_ms": 1463.5,
+    "ok": true
+   },
+   {
+    "start_ms": 711.4,
+    "end_ms": 1415.5,
+    "ok": true
+   },
+   {
+    "start_ms": 846.1,
+    "end_ms": 2349.7,
+    "ok": true
+   },
+   {
+    "start_ms": 858.8,
+    "end_ms": 3480.3,
+    "ok": true
+   },
+   {
+    "start_ms": 909.7,
+    "end_ms": 1414.1,
+    "ok": true
+   },
+   {
+    "start_ms": 1259.7,
+    "end_ms": 1819.7,
+    "ok": true
+   },
+   {
+    "start_ms": 1357.9,
+    "end_ms": 3302.6,
+    "ok": true
+   },
+   {
+    "start_ms": 1414.1,
+    "end_ms": 3367.5,
+    "ok": true
+   },
+   {
+    "start_ms": 1415.6,
+    "end_ms": 3509.0,
+    "ok": true
+   },
+   {
+    "start_ms": 1463.6,
+    "end_ms": 3408.3,
+    "ok": true
+   },
+   {
+    "start_ms": 1747.2,
+    "end_ms": 3407.2,
+    "ok": true
+   },
+   {
+    "start_ms": 1819.8,
+    "end_ms": 3827.6,
+    "ok": true
+   },
+   {
+    "start_ms": 2349.7,
+    "end_ms": 3507.8,
+    "ok": true
+   },
+   {
+    "start_ms": 3302.6,
+    "end_ms": 4273.8,
+    "ok": true
+   },
+   {
+    "start_ms": 3367.6,
+    "end_ms": 4366.5,
+    "ok": true
+   },
+   {
+    "start_ms": 3407.3,
+    "end_ms": 4302.4,
+    "ok": true
+   },
+   {
+    "start_ms": 3408.3,
+    "end_ms": 3950.1,
+    "ok": true
+   },
+   {
+    "start_ms": 3480.3,
+    "end_ms": 4022.6,
+    "ok": true
+   },
+   {
+    "start_ms": 3507.8,
+    "end_ms": 4334.2,
+    "ok": true
+   },
+   {
+    "start_ms": 3509.1,
+    "end_ms": 3985.4,
+    "ok": true
+   },
+   {
+    "start_ms": 3827.6,
+    "end_ms": 4365.1,
+    "ok": true
+   },
+   {
+    "start_ms": 3950.2,
+    "end_ms": 4430.7,
+    "ok": true
+   },
+   {
+    "start_ms": 3985.4,
+    "end_ms": 4463.3,
+    "ok": true
+   },
+   {
+    "start_ms": 4022.7,
+    "end_ms": 4431.4,
+    "ok": true
+   },
+   {
+    "start_ms": 4273.8,
+    "end_ms": 4697.6,
+    "ok": true
+   },
+   {
+    "start_ms": 4302.4,
+    "end_ms": 4770.7,
+    "ok": true
+   },
+   {
+    "start_ms": 4334.2,
+    "end_ms": 4837.9,
+    "ok": true
+   },
+   {
+    "start_ms": 4365.2,
+    "end_ms": 4841.6,
+    "ok": true
+   },
+   {
+    "start_ms": 4366.6,
+    "end_ms": 4864.8,
+    "ok": true
+   },
+   {
+    "start_ms": 4430.7,
+    "end_ms": 4811.3,
+    "ok": true
+   }
+  ]
+ },
+ "burst_llm": {
+  "concurrency": 8,
+  "n": 40,
+  "ok": 40,
+  "wall_ms": 13413.4,
+  "per_sec": 2.98,
+  "rows": [
+   {
+    "start_ms": 0.8,
+    "end_ms": 2514.1,
+    "ok": true
+   },
+   {
+    "start_ms": 3.2,
+    "end_ms": 5871.5,
+    "ok": true
+   },
+   {
+    "start_ms": 4.3,
+    "end_ms": 2473.5,
+    "ok": true
+   },
+   {
+    "start_ms": 4.7,
+    "end_ms": 2621.7,
+    "ok": true
+   },
+   {
+    "start_ms": 5.1,
+    "end_ms": 2381.8,
+    "ok": true
+   },
+   {
+    "start_ms": 5.5,
+    "end_ms": 2809.8,
+    "ok": true
+   },
+   {
+    "start_ms": 5.9,
+    "end_ms": 2313.7,
+    "ok": true
+   },
+   {
+    "start_ms": 6.4,
+    "end_ms": 2219.8,
+    "ok": true
+   },
+   {
+    "start_ms": 2219.8,
+    "end_ms": 4084.1,
+    "ok": true
+   },
+   {
+    "start_ms": 2313.7,
+    "end_ms": 4963.7,
+    "ok": true
+   },
+   {
+    "start_ms": 2381.9,
+    "end_ms": 4239.6,
+    "ok": true
+   },
+   {
+    "start_ms": 2473.6,
+    "end_ms": 4385.6,
+    "ok": true
+   },
+   {
+    "start_ms": 2514.1,
+    "end_ms": 5193.2,
+    "ok": true
+   },
+   {
+    "start_ms": 2621.7,
+    "end_ms": 4760.1,
+    "ok": true
+   },
+   {
+    "start_ms": 2809.8,
+    "end_ms": 5161.9,
+    "ok": true
+   },
+   {
+    "start_ms": 4084.1,
+    "end_ms": 6889.3,
+    "ok": true
+   },
+   {
+    "start_ms": 4239.6,
+    "end_ms": 6844.1,
+    "ok": true
+   },
+   {
+    "start_ms": 4385.6,
+    "end_ms": 6888.5,
+    "ok": true
+   },
+   {
+    "start_ms": 4760.1,
+    "end_ms": 7071.7,
+    "ok": true
+   },
+   {
+    "start_ms": 4963.7,
+    "end_ms": 7289.9,
+    "ok": true
+   },
+   {
+    "start_ms": 5162.0,
+    "end_ms": 7254.7,
+    "ok": true
+   },
+   {
+    "start_ms": 5193.3,
+    "end_ms": 8090.8,
+    "ok": true
+   },
+   {
+    "start_ms": 5871.6,
+    "end_ms": 8219.1,
+    "ok": true
+   },
+   {
+    "start_ms": 6844.2,
+    "end_ms": 8861.8,
+    "ok": true
+   },
+   {
+    "start_ms": 6888.5,
+    "end_ms": 9850.3,
+    "ok": true
+   },
+   {
+    "start_ms": 6889.3,
+    "end_ms": 8755.1,
+    "ok": true
+   },
+   {
+    "start_ms": 7071.7,
+    "end_ms": 8934.6,
+    "ok": true
+   },
+   {
+    "start_ms": 7254.8,
+    "end_ms": 9212.1,
+    "ok": true
+   },
+   {
+    "start_ms": 7290.0,
+    "end_ms": 10292.2,
+    "ok": true
+   },
+   {
+    "start_ms": 8090.8,
+    "end_ms": 10156.2,
+    "ok": true
+   },
+   {
+    "start_ms": 8219.2,
+    "end_ms": 10257.1,
+    "ok": true
+   },
+   {
+    "start_ms": 8755.2,
+    "end_ms": 10705.2,
+    "ok": true
+   },
+   {
+    "start_ms": 8861.8,
+    "end_ms": 11909.8,
+    "ok": true
+   },
+   {
+    "start_ms": 8934.6,
+    "end_ms": 11531.2,
+    "ok": true
+   },
+   {
+    "start_ms": 9212.1,
+    "end_ms": 11869.4,
+    "ok": true
+   },
+   {
+    "start_ms": 9850.3,
+    "end_ms": 11766.9,
+    "ok": true
+   },
+   {
+    "start_ms": 10156.2,
+    "end_ms": 12275.6,
+    "ok": true
+   },
+   {
+    "start_ms": 10257.1,
+    "end_ms": 12230.8,
+    "ok": true
+   },
+   {
+    "start_ms": 10292.2,
+    "end_ms": 13412.5,
+    "ok": true
+   },
+   {
+    "start_ms": 10705.2,
+    "end_ms": 12833.0,
+    "ok": true
+   }
+  ]
+ }
+}

@@ -1,0 +1,32 @@
+# Syncthing (every repo under C:\dev)
+*.sync-conflict-*
+~syncthing~*
+.stfolder/
+.stversions/
+
+# Live Hermes <-> Claude Code message folder (transient, also Syncthing-ignored)
+.agent-bus/
+
+# Secrets never live here (keys: C:\dev\.secrets and Hermes's .env; Vercel env vars)
+.env
+.env.*
+*.key
+
+# Build and tool state
+node_modules/
+.vercel/
+__pycache__/
+*.pyc
+
+# Video intermediates (keep the final cut and its poster only)
+videos/**/audio/
+*.mkv
+videos/**/out/*
+!videos/remotion/out/suki-pulse-draft-a-sound.mp4
+!videos/remotion/out/poster-a.jpg
+
+# Run logs
+*.log
+
+# Organizers' original setup PDF (kept locally, replaced by docs/Hermes Setup Guide.pdf)
+/docs/Hermes Agent Setup Guide.pdf

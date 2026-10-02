@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Suki Pulse film</title>
+<style>
+  @font-face { font-family: "Inter"; font-weight: 400; src: url("assets/fonts/inter-regular.woff2") format("woff2"); }
+  @font-face { font-family: "Inter"; font-weight: 600; src: url("assets/fonts/inter-semibold.woff2") format("woff2"); }
+  @font-face { font-family: "Inter"; font-weight: 700; src: url("assets/fonts/inter-bold.woff2") format("woff2"); }
+  @font-face { font-family: "Inter Display"; font-weight: 800; src: url("assets/fonts/inter-display-extrabold.woff2") format("woff2"); }
+  @font-face { font-family: "Suki Mono"; font-weight: 400; src: url("assets/fonts/CascadiaMono.ttf") format("truetype"); }
+  html, body { margin: 0; height: 100%; background: #0b0b0a; color: #bbb; font: 13px/1.4 system-ui, sans-serif; }
+  body { display: grid; grid-template-rows: 1fr auto; }
+  #stage { display: grid; place-items: center; overflow: hidden; }
+  canvas { max-width: 100vw; max-height: calc(100vh - 40px); }
+  #bar { display: flex; gap: 10px; align-items: center; padding: 6px 12px; }
+  #bar input { flex: 1; }
+  #msg { color: #e87; }
+  .render #bar { display: none; }
+</style>
+</head>
+<body>
+<div id="stage"><canvas id="c"></canvas></div>
+<div id="bar"><button id="play">pause</button><input id="scrub" type="range" min="0" step="0.001"><span id="time"></span><span id="msg"></span></div>
+<script src="beats.js"></script>
+<script src="../suki-data.js"></script>  <!-- window.SUKI: every number and quote, from videos/make_data.py -->
+<script>
+/* ================================ FILM: edit ================================ */
+const FILM = { duration: 22.5, fps: 60, size: '1920x1080', bpm: 120 };  // size = default format, ?size=WxH overrides (1080x1920 next)
+if (!window.SUKI) throw new Error('../suki-data.js did not load (run python videos/make_data.py)');
+const D = window.SUKI;   // never hardcode a number: read it from D. D.fix_run.placeholder is true until the live fix run
+// Suki Pulse v2, dark scheme (design-system.md sections 3 and 4). One accent: green. Amber only rings "top cause / needs you".
+const C = {
+  bg: '#0b0c0d', band: '#0d5c33', onBand: '#eafff2', bandTile: 'rgba(0,0,0,.2)',
+  surface: '#131416', surface2: '#191b1d', line: '#25282b', line2: '#34383c',
+  ink: '#eceae4', muted: '#a4a6a8', faint: '#8c9094',
+  accent: '#2fbf6f', fill: '#0a7a3a', tint: '#123524', tint2: '#184a31', amber: '#ff9f0a', danger: '#ff8a80',
+};
+const FONT = { display: '"Inter Display", "Inter", sans-serif', ui: '"Inter", sans-serif', mono: '"Suki Mono", monospace' };
+const FONTS = ['400 10px "Inter"', '600 10px "Inter"', '700 10px "Inter"', '800 10px "Inter Display"', '400 10px "Suki Mono"'];
+const IMAGES = { dash: 'assets/dark-fold.png' };                       // the live v2 dashboard, 3200x2000
+
+/* ============================ ENGINE: leave alone ============================ */
+const Q = new URLSearchParams(location.search), RENDER = Q.has('render');
+const [W, H] = (Q.get('size') || FILM.size).split(/x/i).map(Number);
+const U = Math.min(W, H) / 100, PORTRAIT = H > W;      // lay out in U (1% of the short side), never fixed pixels
+// ponytail: CPU canvas while rendering makes frame readback cheap (motion blur ran 2x faster);
+// drop willReadFrequently if a heavy image or filter scene renders slower on the CPU.
+const cv = document.getElementById('c'), g = cv.getContext('2d', { willReadFrequently: RENDER });
+cv.width = W; cv.height = H;
+document.body.classList.toggle('render', RENDER);
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, p) => a + (b - a) * p;
+const seg = (t, a, b) => clamp((t - a) / (b - a));     // 0..1 progress between two times
+const loopT = (t, dur) => ((t % dur) + dur) % dur;
+
+// Closed-form damped spring 0 -> 1 (mass 1). A pure function of time, so seek(t) stays deterministic.
+const SPRING = {            // [stiffness, damping]
+  snappy: [320, 30],        // buttons, toggles, leading edges: tiny overshoot
+  base: [170, 26],          // cards, containers, camera
+  heavy: [120, 24],         // big type, 3D objects, logo lockups: no overshoot
+  playful: [260, 14],       // mascots, stickers: visible overshoot
+};
+function spring(t, [k, d] = SPRING.base) {
+  if (t <= 0) return 0;
+  const w0 = Math.sqrt(k), z = d / (2 * w0);
+  if (z < 1) {
+    const wd = w0 * Math.sqrt(1 - z * z);
+    return 1 - Math.exp(-z * w0 * t) * (Math.cos(wd * t) + (z * w0 / wd) * Math.sin(wd * t));
+  }
+  return 1 - Math.exp(-w0 * t) * (1 + w0 * t);          // ponytail: overdamped treated as critical, close enough to read
+}
+// A value that changes target many times: one spring per change, summed, never restarted.
+// keys: [[time, value], ...] sorted by time. Frame 812 renders without simulating frames 0 to 811.
+function track(t, keys, sp = SPRING.base) {
+  let v = keys[0][1];
+  for (let i = 1; i < keys.length; i++) v += (keys[i][1] - keys[i - 1][1]) * spring(t - keys[i][0], sp);
+  return v;
+}
+// Tab indicator that stretches: the leading edge is stiffer than the trailing one. stops: [[time, x], ...]
+function indicator(t, stops, width) {
+  const lead = track(t, stops, SPRING.snappy), trail = track(t, stops, [140, 22]);
+  return { x0: Math.min(lead, trail), x1: Math.max(lead, trail) + width };
+}
+// Text inside a morphing container: in just after its morph starts, out just before the next one.
+const swapAlpha = (t, tIn, tOut = Infinity) => Math.min(clamp((t - tIn - 0.08) / 0.12), clamp((tOut - 0.1 - t) / 0.1));
+// Seeded noise (mulberry32). Never Math.random: every render must match.
+function rng(seed) {
+  return () => {
+    seed = seed + 0x6D2B79F5 | 0;
+    let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+// Beat grid: beats.js from beats.py, else a plain FILM.bpm grid. beat(k) = time of beat k.
+const BEATS = window.BEATS || { bpm: FILM.bpm, beats: [0] };
+const beat = (k) => BEATS.beats[k] ?? BEATS.beats.at(-1) + (k - BEATS.beats.length + 1) * 60 / BEATS.bpm;
+
+const IMG = {};
+function draw(t) {
+  g.fillStyle = C.bg; g.fillRect(0, 0, W, H);
+  for (const s of SCENES) if (t >= s.from && t < s.to) { g.save(); s.draw(t - s.from); g.restore(); }
+}
+window.seek = draw;
+// Fonts and images load before the first frame. A font with no matching @font-face fails loudly,
+// so a render never falls back to Times without anyone noticing.
+window.__ready = Promise.all([
+  ...FONTS.map((f) => document.fonts.load(f).then((faces) => { if (!faces.length) throw new Error('font not loaded: ' + f); })),
+  ...Object.entries(IMAGES).map(([k, src]) => { const i = IMG[k] = new Image(); i.src = src; return i.decode(); }),
+]);
+
+if (!RENDER) __ready.catch((e) => { console.error(e); document.getElementById('msg').textContent = e.message; }).then(() => {
+  // Preview: space plays, arrows step a frame (shift: 1 s), the slider scrubs, ?t=4.2 starts there.
+  const $ = (id) => document.getElementById(id), scrub = $('scrub');
+  let t = +(Q.get('t') || 0), playing = true, last = performance.now();
+  scrub.max = FILM.duration;
+  const setPlaying = (p) => { playing = p; $('play').textContent = p ? 'pause' : 'play'; };
+  $('play').onclick = () => setPlaying(!playing);
+  scrub.oninput = () => { setPlaying(false); t = +scrub.value; };
+  addEventListener('keydown', (e) => {
+    if (e.code === 'Space') { e.preventDefault(); setPlaying(!playing); }
+    const dir = { ArrowRight: 1, ArrowLeft: -1 }[e.key];
+    if (dir) { setPlaying(false); t = loopT(t + dir * (e.shiftKey ? 1 : 1 / FILM.fps), FILM.duration); }
+  });
+  (function frame(now) {
+    if (playing) t = loopT(t + (now - last) / 1000, FILM.duration);
+    last = now; seek(t); scrub.value = t; $('time').textContent = t.toFixed(2) + 's';
+    requestAnimationFrame(frame);
+  })(performance.now());
+});
+
+/* =============================== SCENES: edit =============================== */
+// Story beats: docs/shotlist.md. Every string with a number in it is built from D.
+const b = beat;
+const LBL = Object.fromEntries(Object.entries(D.cause_labels).map(([k, v]) => [k, v.replace(' / ', ' or ')]));  // v2 site wording
+const LAYER = (n) => D.layers.find((l) => l.n === n);
+const SKILL_SENT = LAYER('2').body.split('. ');                       // "... It asks before it writes, then shows ..."
+
+// Layout: one green band on top, the near-black sheet overlapping it (the dashboard's signature).
+const SX = PORTRAIT ? 3 * U : 7 * U;                                  // sheet inset from the frame edge
+const X0 = SX + (PORTRAIT ? 4 * U : 6 * U), CW = W - 2 * X0;          // content column
+// Shot starts, in beats (docs/shotlist.md).
+const AT = { symptom: 4, jev: 8, race: 14, heat: 21, rider: 27, fix: 31, after: 37, end: 40 };
+const BAND = PORTRAIT ? 0.24 : 0.3;
+const BAND_KEYS = [[0, 1], [b(AT.symptom) - 0.04, BAND], [b(AT.end) - 0.04, 1]];
+function geo(T) {
+  const bh = track(T, BAND_KEYS, SPRING.base) * H;
+  return { bh, sy: bh - 2.4 * U + 7 * U * clamp((bh / H - 0.9) / 0.1) };   // full band pushes the sheet off frame
+}
+
+function font(weight, sizeU, fam = FONT.ui, track_em = 0) {
+  g.font = `${weight} ${sizeU * U}px ${fam}`;
+  g.letterSpacing = `${track_em * sizeU * U}px`;
+}
+function wrap(str, maxW) {
+  const lines = [];
+  let line = '';
+  for (const w of str.split(' ')) {
+    const test = line ? line + ' ' + w : w;
+    if (line && g.measureText(test).width > maxW) { lines.push(line); line = w; } else line = test;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+// The brand entrance: rise about 12px and fade in, once. Exit: lift and fade just before tOut.
+function enter(t, t0, tOut = Infinity) {
+  const p = spring(t - t0, SPRING.base), o = clamp((tOut - t) / 0.16);
+  return { a: Math.min(clamp((t - t0) / 0.18), o), dy: (1 - p) * 1.5 * U - (1 - o) * 1.2 * U };
+}
+// Big display type: words rise out of a mask on a stagger. y = first baseline. Returns the block height.
+function reveal(str, x, y, maxW, sizeU, t, t0, color, tOut = Infinity, stagger = 0.035) {
+  font(800, sizeU, FONT.display, -0.03);
+  const lines = wrap(str, maxW), L = sizeU * U * 1.06, o = clamp((tOut - t) / 0.16);
+  let i = 0;
+  g.fillStyle = color;
+  lines.forEach((ln, li) => {
+    const yy = y + li * L;
+    g.save(); g.beginPath(); g.rect(x - U, yy - L * 0.95, maxW + 4 * U, L * 1.22); g.clip();
+    let xx = x;
+    for (const w of ln.split(' ')) {
+      const p = spring(t - t0 - i * stagger, SPRING.heavy);
+      g.globalAlpha = o;
+      g.fillText(w, xx, yy + (1 - p) * L * 1.05 - (1 - o) * L * 0.4);
+      xx += g.measureText(w + ' ').width; i++;
+    }
+    g.restore();
+  });
+  g.globalAlpha = 1;
+  return lines.length * L;
+}
+// Pill: mono uppercase .1em (codes, refs, tool names) or UI 700 (status). ring = amber "needs you".
+function pill(label, x, y, { mono = true, bg = C.surface2, fg = C.muted, ring = null, sizeU = 1.55, dot = null } = {}) {
+  if (mono) font(400, sizeU, FONT.mono, 0.1); else font(700, sizeU * 1.12, FONT.ui);
+  const txt = mono ? label.toUpperCase() : label, ph = sizeU * U * 2.1, px = sizeU * U * 0.85;
+  const dw = dot ? sizeU * U * 1.1 : 0, w = g.measureText(txt).width + 2 * px + dw;
+  g.fillStyle = bg; g.beginPath(); g.roundRect(x, y - ph / 2, w, ph, ph / 2); g.fill();
+  if (ring) { g.strokeStyle = ring; g.lineWidth = 0.28 * U; g.stroke(); }
+  if (dot) { g.fillStyle = dot; g.beginPath(); g.arc(x + px + sizeU * U * 0.3, y, sizeU * U * 0.3, 0, 7); g.fill(); }
+  g.fillStyle = fg; g.textBaseline = 'middle'; g.fillText(txt, x + px + dw, y + U * 0.08); g.textBaseline = 'alphabetic';
+  g.letterSpacing = '0px';
+  return w;
+}
+function txt(str, x, y, weight, sizeU, color, { fam = FONT.ui, align = 'left', trk = 0 } = {}) {
+  font(weight, sizeU, fam, trk); g.fillStyle = color; g.textAlign = align; g.fillText(str, x, y); g.textAlign = 'left';
+  g.letterSpacing = '0px';
+}
+const sentence = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+const money = (v) => '$' + v.toFixed(4);
+
+// ---- scenes ----
+// Band headline: display type, centred in the visible band above the sheet.
+function bandHead(str, T, t0, tOut) {
+  const size = PORTRAIT ? 6.4 : 7.2, maxW = CW * (PORTRAIT ? 1 : 0.94);
+  font(800, size, FONT.display, -0.03);
+  const n = wrap(str, maxW).length, L = size * U * 1.06, room = BAND * H - 2.4 * U;
+  reveal(str, X0, (room - n * L) / 2 + size * U * 0.86, maxW, size, T, t0, C.onBand, tOut);
+}
+
+const SCENES = [
+  // The container never cuts: band and sheet morph between every shot.
+  { from: 0, to: FILM.duration, draw(t) {
+      const { bh, sy } = geo(t);
+      g.fillStyle = C.band; g.fillRect(0, 0, W, bh);
+      g.fillStyle = C.surface; g.beginPath(); g.roundRect(SX, sy, W - 2 * SX, H - sy + 5 * U, 2.4 * U); g.fill();
+      g.strokeStyle = 'rgba(255,255,255,.05)'; g.lineWidth = 1; g.stroke();
+  }},
+
+  // 1. Hook: one real complaint, full band.
+  { from: 0, to: b(AT.symptom) + 0.05, draw(t) {
+      const c0 = D.complaints[0], tOut = b(AT.symptom) - 0.02, size = PORTRAIT ? 10 : 10.4, maxW = CW * (PORTRAIT ? 1 : 0.92);
+      font(800, size, FONT.display, -0.03);
+      const q = `“${c0.text}”`, L = size * U * 1.06, n = wrap(q, maxW).length;
+      const block = 7 * U + n * L + 7 * U, top = (H - block) / 2 + 2 * U;
+      let e = enter(t, 0.05, tOut);
+      g.globalAlpha = e.a; pill(`${c0.ref} · ${c0.priority} priority`, X0, top + e.dy, { bg: C.bandTile, fg: C.onBand, sizeU: 2.1 });
+      g.globalAlpha = 1;
+      reveal(q, X0, top + 6 * U + size * U * 0.86, maxW, size, t, 0.15, C.onBand, tOut);
+      e = enter(t, b(2.5), tOut);
+      g.globalAlpha = e.a;
+      txt(`1 of ${D.jev_run.items} open complaints at Suki Mart`, X0, top + 6 * U + n * L + 5 * U + e.dy, 600, PORTRAIT ? 4 : 3.8, C.onBand);
+  }},
+
+  // 2. Every complaint is a symptom: the queue fills, the total lands.
+  { from: b(AT.symptom) - 0.05, to: b(AT.jev) + 0.05, draw(t) {
+      const k = AT.symptom, T = t + this.from, { sy } = geo(T), tOut = b(AT.jev) - 0.02, r = D.jev_run;
+      bandHead(D.pitch.split('. ')[0] + '.', T, b(k) + 0.12, tOut);
+      const kpiX = PORTRAIT ? X0 : X0 + CW * 0.64, kpiY = PORTRAIT ? sy + 11 * U : sy + 13 * U;
+      let e = enter(T, b(k + 1), tOut);
+      g.globalAlpha = e.a;
+      txt('Open complaints', kpiX, kpiY + e.dy, 700, 2.6, C.muted);
+      txt(String(r.items), kpiX - 0.8 * U, kpiY + 20 * U + e.dy, 800, 21, C.ink, { fam: FONT.display, trk: -0.035 });
+      txt(`across ${r.branches} branches`, kpiX, kpiY + 27.5 * U + e.dy, 600, 3.6, C.muted);
+      e = enter(T, b(k + 2.5), tOut); g.globalAlpha = e.a;
+      txt(`Jev read them all in ${r.seconds} s for ${money(r.cost_usd)}`, kpiX, kpiY + 34 * U + e.dy, 600, PORTRAIT ? 3.2 : 2.8, C.accent);
+      const rowX = X0, rowW = PORTRAIT ? CW : CW * 0.56, y0 = PORTRAIT ? sy + 56 * U : sy + 9 * U, rh = PORTRAIT ? 17 * U : 14.5 * U;
+      D.complaints.slice(1, 5).forEach((c, i) => {
+        const e2 = enter(T, b(k) + 0.3 + i * 0.5, tOut), y = y0 + i * rh + e2.dy;
+        g.globalAlpha = e2.a;
+        if (i) { g.fillStyle = C.line; g.fillRect(rowX, y - 4 * U, rowW, 1); }
+        const pw = pill(c.ref, rowX, y, { sizeU: 2 });
+        if (c.stars) txt('★'.repeat(c.stars) + '☆'.repeat(5 - c.stars), rowX + pw + 1.6 * U, y + 1 * U, 400, 2.6, C.faint);
+        font(400, PORTRAIT ? 3.6 : 3.3); g.fillStyle = C.ink;
+        wrap(c.text, rowW).slice(0, 2).forEach((ln, li) => g.fillText(ln, rowX, y + 5.6 * U + li * 4.3 * U));
+      });
+  }},
+
+  // 3. Jev reads one real complaint: six yes or no checks, live values from the Desktop pulse check.
+  { from: b(AT.jev) - 0.05, to: b(AT.race) + 0.05, draw(t) {
+      const k = AT.jev, T = t + this.from, { sy } = geo(T), tOut = b(AT.race) - 0.02, f = D.live_pulse.featured;
+      bandHead(LAYER('4').body.split(',')[0] + '.', T, b(k) + 0.12, tOut);
+      // the complaint, as a surface-2 tile
+      const tw = PORTRAIT ? CW : CW * 0.36, tx = X0, ty = sy + 7 * U, qs = PORTRAIT ? 4.2 : 3.9;
+      let e = enter(T, b(k) + 0.25, tOut);
+      g.globalAlpha = e.a;
+      font(600, qs); const ql = wrap(`“${f.text}”`, tw - 5 * U);
+      const th = 11 * U + ql.length * qs * 1.3 * U;
+      g.fillStyle = C.surface2; g.beginPath(); g.roundRect(tx, ty + e.dy, tw, th, 1.6 * U); g.fill();
+      pill(f.ref, tx + 2.5 * U, ty + 5 * U + e.dy, { bg: C.surface, fg: C.muted, sizeU: 1.9 });
+      font(600, qs); g.fillStyle = C.ink;
+      ql.forEach((ln, li) => g.fillText(ln, tx + 2.5 * U, ty + 13 * U + li * qs * 1.3 * U + e.dy));
+      // six cause rows, sorted by Jev's probability
+      const rows = Object.entries(f.causes).sort((a, z) => z[1] - a[1]), top = rows[0][0];
+      const rx = PORTRAIT ? X0 : X0 + CW * 0.41, rw = PORTRAIT ? CW : CW * 0.59, ry = PORTRAIT ? ty + th + 10 * U : sy + 9 * U;
+      const rh = PORTRAIT ? 10 * U : 8.6 * U, labW = rw * 0.37, barW = rw * 0.3, valX = rx + labW + barW + 9 * U;
+      rows.forEach(([key, p], i) => {
+        const t0 = b(k + 1) + i * 0.25, e2 = enter(T, t0, tOut), y = ry + i * rh + e2.dy, yes = p >= 0.5;
+        g.globalAlpha = e2.a;
+        if (i) { g.fillStyle = C.line; g.fillRect(rx, y - rh * 0.52, rw, 1); }
+        txt(LBL[key], rx, y + 1.1 * U, 600, PORTRAIT ? 3.3 : 3.1, C.ink);
+        const bx = rx + labW, fill = barW * p * spring(T - t0 - 0.1, SPRING.base), bh = 1.2 * U;
+        g.fillStyle = C.line; g.beginPath(); g.roundRect(bx, y - bh / 2, barW, bh, bh / 2); g.fill();
+        g.fillStyle = yes ? C.accent : C.faint; g.beginPath(); g.roundRect(bx, y - bh / 2, Math.max(fill, bh), bh, bh / 2); g.fill();
+        txt(p.toFixed(2), valX, y + 1.5 * U, 800, 4.2, yes ? C.ink : C.muted, { fam: FONT.display, align: 'right' });
+        const pe = spring(T - t0 - 0.35, SPRING.snappy);
+        g.globalAlpha = e2.a * clamp(pe * 1.4);
+        pill(yes ? 'yes' : 'no', valX + 2.4 * U, y, yes ? { bg: C.tint, fg: C.accent, ring: key === top ? C.amber : null, sizeU: 2 } : { bg: C.surface2, fg: C.faint, sizeU: 2 });
+      });
+      // the rest of the answer: churn, urgency, tokens
+      const fy = ry + 6 * rh + (PORTRAIT ? 3 : 0.5) * U;
+      let fx = rx;
+      [`churn ${f.churn_risk} of 2`, `urgent ${f.urgent}`, `${f.input_tokens} tokens`, 'one call'].forEach((s, i) => {
+        const e3 = enter(T, b(k + 4) + i * 0.25, tOut);
+        g.globalAlpha = e3.a;
+        fx += pill(s, fx, fy + e3.dy, { bg: C.surface2, fg: C.ink, sizeU: 1.9 }) + 1.4 * U;
+      });
+  }},
+
+  // 4. The race: the venue benchmark replayed on one scaled clock, from the real per-item finish times.
+  { from: b(AT.race) - 0.05, to: b(AT.heat) + 0.05, draw(t) {
+      const k = AT.race, T = t + this.from, { sy } = geo(T), tOut = b(AT.heat) - 0.02, r = D.jev_race;
+      bandHead(`Same ${r.n} complaints: ${r.jev_model} against ${r.llm_model}.`, T, b(k) + 0.12, tOut);
+      const end = r.jev_finish_s.at(-1), t0 = b(k + 1.5), dur = 2.0;            // 27.5 real seconds in 2 film seconds
+      const clock = clamp((T - t0) / dur) * end, filmAt = (x) => t0 + (x / end) * dur;
+      const cols = 20, labW = PORTRAIT ? 0 : CW * 0.2, cntW = PORTRAIT ? 0 : CW * 0.17;
+      const gx = X0 + labW, gw = CW - labW - cntW, cell = gw / cols, gap = Math.max(3, 0.45 * U);
+      const y0 = sy + (PORTRAIT ? 10 : 9) * U, laneH = PORTRAIT ? 2 * cell + 16 * U : 2 * cell + 7 * U;
+      [[r.jev_model, r.jev_finish_s, true], [r.llm_model, r.llm_finish_s, false]].forEach(([name, times, jev], li) => {
+        const e = enter(T, b(k) + 0.3 + li * 0.25, tOut), y = y0 + li * laneH + e.dy;
+        g.globalAlpha = e.a;
+        if (li) { g.fillStyle = C.line; g.fillRect(X0, y - 3.5 * U, CW, 1); }
+        const done = times.filter((x) => x <= clock + 1e-9).length;
+        pill(name, X0, y + (PORTRAIT ? 0 : cell - gap / 2), jev ? { bg: C.tint, fg: C.accent, sizeU: 2.1 } : { bg: C.surface2, fg: C.ink, sizeU: 2.1 });
+        const gy = PORTRAIT ? y + 4.5 * U : y;
+        for (let i = 0; i < r.n; i++) {
+          const cx = gx + (i % cols) * cell, cy = gy + Math.floor(i / cols) * cell, tf = filmAt(times[i]);
+          g.fillStyle = C.surface2; g.beginPath(); g.roundRect(cx, cy, cell - gap, cell - gap, 0.4 * U); g.fill();
+          if (i < done) {
+            const p = clamp(spring(T - tf, SPRING.snappy), 0, 1.1), s = (cell - gap) * p;
+            g.fillStyle = jev ? C.accent : C.muted;
+            g.beginPath(); g.roundRect(cx + (cell - gap - s) / 2, cy + (cell - gap - s) / 2, s, s, 0.4 * U); g.fill();
+          }
+        }
+        const cx2 = X0 + CW, cy2 = PORTRAIT ? y + 1.8 * U : y + cell + 2.6 * U;
+        font(800, PORTRAIT ? 5.6 : 7, FONT.display, -0.02);
+        g.textAlign = 'right'; g.fillStyle = C.faint; g.fillText(` / ${r.n}`, cx2, cy2);
+        const sw = g.measureText(` / ${r.n}`).width; g.fillStyle = jev ? C.ink : C.muted; g.fillText(String(done), cx2 - sw, cy2);
+        g.textAlign = 'left'; g.letterSpacing = '0px';
+      });
+      // the shared clock, in real seconds, and what the run was
+      let e = enter(T, b(k + 1), tOut); g.globalAlpha = e.a;
+      const ry = y0 + 2 * laneH - (PORTRAIT ? 7 : 1.5) * U;
+      txt(`${clock.toFixed(1)} s`, X0, ry + e.dy, 400, 3, C.ink, { fam: FONT.mono });
+      font(400, PORTRAIT ? 2.2 : 2.3);
+      const cap = `Replay of a measured run, ${r.measured_at}: one complaint at a time, ${r.questions_per_call} questions each.`;
+      g.fillStyle = C.faint;
+      wrap(cap, CW - 15 * U).forEach((ln, li) => g.fillText(ln, X0 + 15 * U, ry + e.dy + li * 3 * U));
+      // what the run measured
+      const facts = [`p50 ${Math.round(r.p50_ms.jev)} ms vs ${(r.p50_ms.llm / 1000).toFixed(2)} s`, `${r.cost_ratio}x cheaper per decision`, `same top cause on ${(r.agreement * 100).toFixed(1)}%`];
+      let fx = X0, fy = ry + (PORTRAIT ? 10 : 7) * U;
+      facts.forEach((s, i) => {
+        const e3 = enter(T, b(k + 5.5) + i * 0.25, tOut);
+        if (PORTRAIT && i === 2) { fx = X0; fy += 6 * U; }
+        g.globalAlpha = e3.a;
+        fx += pill(s, fx, fy + e3.dy, { mono: false, bg: i ? C.surface2 : C.tint, fg: i ? C.ink : C.accent, sizeU: 2.3 }) + 1.6 * U;
+      });
+  }},
+
+  // 5. The real dashboard: root causes by branch, then push into Tomas Morato.
+  { from: b(AT.heat) - 0.05, to: b(AT.rider) + 0.05, draw(t) {
+      const k = AT.heat, T = t + this.from, { sy } = geo(T), tOut = b(AT.rider) - 0.02, br = D.branch, top = br.top_cause;
+      bandHead(`${LBL[top]} explains ${br.causes[top]} of ${br.items} complaints at ${br.name}.`, T, b(k) + 0.12, tOut);
+      const img = IMG.dash, vx = SX, vw = W - 2 * SX, vy = sy, vh = H - sy;
+      // camera in image pixels (3200x2000 screenshot): whole fold, the table, then the TMR row
+      const s0 = PORTRAIT ? vw / 2050 : vw / 3050, s1 = PORTRAIT ? vw / 1500 : vw / 2000, s2 = PORTRAIT ? vw / 900 : vw / 1150;
+      const k1 = b(k + 1.5) - this.from, k2 = b(k + 3) - this.from;
+      const s = track(t, [[0, s0], [k1, s1], [k2, s2]]);
+      const fx = track(t, [[0, PORTRAIT ? 1215 : 1600], [k1, 1215], [k2, PORTRAIT ? 960 : 1000]]);
+      const fy = track(t, [[0, 1170], [k1, 1250], [k2, 1530]]);
+      const o = Math.min(clamp((T - b(k) - 0.05) / 0.2), clamp((tOut - T) / 0.16));
+      g.save(); g.globalAlpha = o;
+      g.beginPath(); g.roundRect(vx, vy, vw, vh + 5 * U, 2.4 * U); g.clip();
+      g.imageSmoothingQuality = 'high';
+      g.drawImage(img, vx + vw / 2 - fx * s, vy + vh / 2 - fy * s, img.width * s, img.height * s);
+      g.restore();
+  }},
+
+  // 6. The operational proof: one rider, late across the chain.
+  { from: b(AT.rider) - 0.05, to: b(AT.fix) + 0.05, draw(t) {
+      const k = AT.rider, T = t + this.from, { sy } = geo(T), tOut = b(AT.fix) - 0.02, r = D.branch.rider;
+      bandHead('The cause lives in operations, not in the inbox.', T, b(k) + 0.12, tOut);
+      let e = enter(T, b(k) + 0.3, tOut);
+      const y = sy + 10 * U;
+      g.globalAlpha = e.a; txt('RIDER EVIDENCE', X0, y + e.dy, 700, 2.4, C.muted, { trk: 0.06 });
+      e = enter(T, b(k + 1), tOut); g.globalAlpha = e.a;
+      txt(r.rider, X0, y + 7.5 * U + e.dy, 700, PORTRAIT ? 5.2 : 5, C.ink);
+      e = enter(T, b(k + 1.5), tOut); g.globalAlpha = e.a;
+      font(800, PORTRAIT ? 24 : 27, FONT.display, -0.035); g.fillStyle = C.ink;
+      const big = String(r.late_all_branches), bw = g.measureText(big).width, by = y + (PORTRAIT ? 31 : 34) * U + e.dy;
+      g.fillText(big, X0 - 1 * U, by); g.letterSpacing = '0px';
+      txt(`late of ${r.deliveries_all_branches}`, X0 + bw + 2 * U, by, 800, PORTRAIT ? 8.6 : 10, C.muted, { fam: FONT.display, trk: -0.02 });
+      const tiles = [['Branches served', String(r.branches_served)], ['Window', `${r.days} days`], ['Late here', `${r.late_here} of ${r.deliveries_here}`]];
+      const tx0 = PORTRAIT ? X0 : X0 + CW * 0.6, ty0 = PORTRAIT ? by + 10 * U : y - 2 * U, tw = PORTRAIT ? (CW - 4 * U) / 3 : CW * 0.4, tH = PORTRAIT ? 11 * U : 10.5 * U;
+      tiles.forEach(([label, value], i) => {
+        const e2 = enter(T, b(k + 2) + i * 0.25, tOut);
+        const x = PORTRAIT ? tx0 + i * (tw + 2 * U) : tx0, yy = PORTRAIT ? ty0 : ty0 + i * (tH + 2 * U);
+        g.globalAlpha = e2.a;
+        g.fillStyle = C.surface2; g.beginPath(); g.roundRect(x, yy + e2.dy, tw, tH, 1.4 * U); g.fill();
+        if (PORTRAIT) {
+          txt(label, x + tw / 2, yy + 4 * U + e2.dy, 700, 2.1, C.muted, { align: 'center' });
+          txt(value, x + tw / 2, yy + 8.8 * U + e2.dy, 800, 4, C.ink, { fam: FONT.display, align: 'center' });
+        } else {
+          txt(label, x + 3 * U, yy + tH / 2 + 1 * U + e2.dy, 600, 2.9, C.muted);
+          txt(value, x + tw - 3 * U, yy + tH / 2 + 1.6 * U + e2.dy, 800, 4.6, C.ink, { fam: FONT.display, align: 'right' });
+        }
+      });
+      e = enter(T, b(k + 3), tOut); g.globalAlpha = e.a;
+      const fy = PORTRAIT ? ty0 + 19 * U : by + 10 * U;
+      txt('Fix with', X0, fy + 1 * U + e.dy, 700, 2.8, C.muted);
+      font(700, 2.8); pill('flag_rider_for_coaching', X0 + g.measureText('Fix with').width + 2 * U, fy + e.dy, { bg: C.tint, fg: C.accent, sizeU: 2.3 });
+  }},
+
+  // 7. Fix both sides: a click, a yes, then the tool calls land.
+  { from: b(AT.fix) - 0.05, to: b(AT.after) + 0.05, draw(t) {
+      const k = AT.fix, T = t + this.from, { sy } = geo(T), tOut = b(AT.after) - 0.02, fr = D.fix_run;
+      bandHead(SKILL_SENT[1].split(',')[0] + '.', T, b(k) + 0.12, tOut);
+      // primary button, pressed on the beat (scale .98, one response only)
+      let e = enter(T, b(k) + 0.05, tOut);
+      const y = sy + 8 * U;
+      const press = 1 - 0.03 * (spring(T - b(k + 0.5), SPRING.snappy) - spring(T - b(k + 0.5) - 0.12, SPRING.snappy));
+      font(700, 3); const label = D.pane_buttons[1], bwid = g.measureText(label).width + 6 * U, bh = 7 * U;
+      g.save(); g.globalAlpha = e.a; g.translate(X0 + bwid / 2, y + e.dy + bh / 2); g.scale(press, press);
+      g.fillStyle = C.fill; g.beginPath(); g.roundRect(-bwid / 2, -bh / 2, bwid, bh, 1.4 * U); g.fill();
+      txt(label, 0, 1.05 * U, 700, 3, '#ffffff', { align: 'center' });
+      g.restore();
+      // the confirm step from SKILL.md workflow B: needs you, so an amber ring until the yes
+      e = enter(T, b(k + 1), tOut); g.globalAlpha = e.a;
+      const ax = PORTRAIT ? X0 : X0 + bwid + 3 * U, ay = PORTRAIT ? y + bh + 6 * U : y + bh / 2;
+      const pw = pill('Proceed? (yes/no)', ax, ay + e.dy, { mono: false, bg: C.surface2, fg: C.ink, ring: T < b(k + 1.5) + 0.1 ? C.amber : null, sizeU: 2.4 });
+      e = enter(T, b(k + 1.5), tOut); g.globalAlpha = e.a;
+      pill('yes', ax + pw + 1.6 * U, ay + e.dy, { mono: false, bg: C.tint, fg: C.accent, sizeU: 2.4 });
+      // actions: tool, target, result
+      const ly = PORTRAIT ? ay + 11 * U : y + bh + 9 * U, rh = PORTRAIT ? 14 * U : 9.4 * U;
+      fr.actions.slice(0, 5).forEach((a, i) => {
+        const t0 = b(k + 1.5) + 0.25 + i * 0.25, tick = b(k + 2.5) + i * 0.25, e2 = enter(T, t0, tOut), yy = ly + i * rh + e2.dy;
+        g.globalAlpha = e2.a;
+        if (i) { g.fillStyle = C.line; g.fillRect(X0, yy - rh * 0.5, CW, 1); }
+        const kk = spring(T - tick, SPRING.snappy), cr = 1.7 * U;
+        g.strokeStyle = C.line2; g.lineWidth = 0.25 * U; g.beginPath(); g.arc(X0 + cr, yy, cr, 0, 7); g.stroke();
+        if (T >= tick) {
+          g.fillStyle = C.accent; g.beginPath(); g.arc(X0 + cr, yy, cr * clamp(kk, 0, 1.15), 0, 7); g.fill();
+          g.strokeStyle = C.bg; g.lineWidth = 0.38 * U; g.lineCap = 'round'; g.lineJoin = 'round';
+          g.beginPath(); g.moveTo(X0 + cr * 0.5, yy + cr * 0.02); g.lineTo(X0 + cr * 0.88, yy + cr * 0.4); g.lineTo(X0 + cr * 1.5, yy - cr * 0.38);
+          g.globalAlpha = e2.a * clamp(kk); g.stroke(); g.globalAlpha = e2.a;
+        }
+        const tx = X0 + 2 * cr + 2 * U, pw2 = pill(a.tool, tx, yy, { bg: C.surface2, fg: C.ink, sizeU: 2 });
+        if (PORTRAIT) {
+          txt(a.target, tx, yy + 5.6 * U, 600, 3.2, C.ink);
+          txt(a.result, tx, yy + 9.4 * U, 400, 2.7, C.muted);
+        } else {
+          txt(a.target, tx + pw2 + 2 * U, yy + 1.1 * U, 600, 3.2, C.ink);
+          txt(a.result, X0 + CW, yy + 1.1 * U, 400, 2.8, C.muted, { align: 'right' });
+        }
+      });
+  }},
+
+  // 8. Before and after: only the numbers that moved.
+  { from: b(AT.after) - 0.05, to: b(AT.end) + 0.05, draw(t) {
+      const k = AT.after, T = t + this.from, { sy } = geo(T), tOut = b(AT.end) - 0.02, before = D.branch.scorecard_before, after = D.fix_run.scorecard_after;
+      bandHead(`${D.fix_run.actions.length} actions later, at ${D.branch.name}.`, T, b(k) + 0.12, tOut);
+      const NAMES = { open_tickets: 'Open tickets', never_answered: 'Never answered', unreplied_low_reviews: 'Unreplied 1–2★ reviews', loyalty_mismatches: 'Loyalty ledger mismatches', reorder_without_po: 'Low stock, no PO' };
+      const rows = Object.keys(NAMES).filter((key) => after[key] !== undefined && after[key] !== before[key]);
+      const y0 = sy + (PORTRAIT ? 12 : 10.5) * U, rh = PORTRAIT ? 13 * U : 11.5 * U, colA = X0 + CW * (PORTRAIT ? 0.66 : 0.72), colB = X0 + CW;
+      rows.forEach((key, i) => {
+        const t0 = b(k) + 0.25 + i * 0.25, e = enter(T, t0, tOut), y = y0 + i * rh + e.dy;
+        g.globalAlpha = e.a;
+        if (i) { g.fillStyle = C.line; g.fillRect(X0, y - rh * 0.55, CW, 1); }
+        txt(NAMES[key], X0, y + 1.3 * U, 600, PORTRAIT ? 3.6 : 3.8, C.ink);
+        txt(String(before[key]), colA, y + 2 * U, 800, 5.8, C.faint, { fam: FONT.display, align: 'right' });
+        txt('→', (colA + colB) / 2 - 2 * U, y + 1.6 * U, 400, 4, C.faint);
+        const p = spring(T - t0 - 0.3, SPRING.snappy);
+        g.globalAlpha = e.a * clamp((T - t0 - 0.3) / 0.12);
+        txt(String(after[key]), colB, y + 2 * U + (1 - p) * 1.8 * U, 800, 5.8, C.accent, { fam: FONT.display, align: 'right' });
+      });
+  }},
+
+  // 9. End card on the full band: wordmark, tagline, the four layers, credits.
+  { from: b(AT.end) - 0.05, to: FILM.duration, draw(t) {
+      const k = AT.end, T = t + this.from, y = PORTRAIT ? 0.26 * H : 0.17 * H;
+      let e = enter(T, b(k + 0.5));
+      g.globalAlpha = e.a; pill(D.badge, X0, y + e.dy, { mono: false, bg: C.bandTile, fg: C.onBand, dot: '#7fe0a8', sizeU: 2.2 });
+      g.globalAlpha = 1;
+      const wm = PORTRAIT ? 17 : 20;
+      reveal(D.product, X0 - 0.8 * U, y + (wm + 3) * U, CW, wm, T, b(k + 1), C.onBand, Infinity, 0.07);
+      e = enter(T, b(k + 2)); g.globalAlpha = e.a;
+      txt(sentence(D.tagline), X0, y + (wm + 11) * U + e.dy, 600, PORTRAIT ? 4.6 : 4.4, C.onBand);
+      const ly = y + (wm + (PORTRAIT ? 24 : 23)) * U, cols = PORTRAIT ? 2 : 4, cw = CW / cols;
+      D.layers.forEach((l, i) => {
+        const e2 = enter(T, b(k + 2.5) + i * 0.25);
+        const x = X0 + (i % cols) * cw, yy = ly + Math.floor(i / cols) * 11 * U + e2.dy;
+        g.globalAlpha = e2.a;
+        txt(l.n, x, yy + 0.6 * U, 800, 5.4, 'rgba(234,255,242,.55)', { fam: FONT.display });
+        txt(l.name, x + 5 * U, yy - 0.4 * U, 700, 3.1, C.onBand);
+        if (l.code) txt(l.code, x + 5 * U, yy + 3.8 * U, 400, 2.4, 'rgba(234,255,242,.75)', { fam: FONT.mono });
+      });
+      e = enter(T, b(k + 3)); g.globalAlpha = e.a;
+      const cy = PORTRAIT ? H - 13 * U : H - 8 * U;
+      txt(D.credits, X0, cy + e.dy, 400, PORTRAIT ? 2.6 : 2.5, 'rgba(234,255,242,.8)');
+      txt(D.url, PORTRAIT ? X0 : X0 + CW, (PORTRAIT ? cy + 4.5 * U : cy) + e.dy, 400, 2.5, C.onBand, { fam: FONT.mono, align: PORTRAIT ? 'left' : 'right' });
+  }},
+];
+</script>
+</body>
+</html>

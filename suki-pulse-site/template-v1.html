@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Suki Pulse · complaint → root cause → fix</title>
+<meta name="description" content="Suki Pulse: Hermes Agent + TypeSafe Jev turn Suki Mart complaints into operational fixes. Camp Run hackathon, Open Innovation.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #eef2ff;
+    --muted: #9aa6cf;
+    --faint: #5d6a99;
+    --bg: #070d2a;
+    --surface: #0d1640;
+    --surface-2: #121d52;
+    --line: #1f2b66;
+    --accent: #f6e27a;      /* Camp Run pill yellow */
+    --cyan: #5ad1f2;        /* Camp Run cyan */
+    --danger: #ff8a7a;      /* Camp Run salmon */
+    --radius: 10px;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --sans: "IBM Plex Sans", system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+  body { min-height: 100vh; }
+  a { color: var(--cyan); }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 28px 24px 48px; }
+
+  /* top bar */
+  header { display: grid; grid-template-columns: 1fr auto; gap: 16px 32px; align-items: end; padding-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .mark { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; }
+  .mark h1 { margin: 0; font-size: 30px; letter-spacing: 0.04em; font-weight: 700; }
+  .mark h1 span { color: var(--accent); }
+  .pill { font-family: var(--mono); font-size: 12px; color: #1a1a1a; background: var(--accent); padding: 3px 10px; border-radius: 999px; }
+  .tagline { margin: 6px 0 0; color: var(--muted); font-size: 15px; max-width: 62ch; text-wrap: pretty; }
+  .run { font-family: var(--mono); font-size: 12.5px; color: var(--muted); text-align: right; line-height: 1.7; }
+  .run b { color: var(--ink); font-weight: 500; }
+
+  /* main grid */
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 24px; margin-top: 24px; }
+  @media (max-width: 980px) { main { grid-template-columns: 1fr; } header { grid-template-columns: 1fr; } .run { text-align: left; } }
+
+  h2 { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 12px; }
+
+  /* heatmap */
+  .matrix { width: 100%; border-collapse: separate; border-spacing: 3px; font-size: 13px; }
+  .matrix th { font-weight: 500; color: var(--muted); text-align: center; padding: 4px 2px 8px; font-size: 12px; line-height: 1.25; }
+  .matrix th.b { text-align: left; }
+  .matrix td { text-align: center; font-family: var(--mono); padding: 0; }
+  .matrix td.cell { height: 34px; border-radius: 6px; font-size: 13px; }
+  .matrix tr.row { cursor: pointer; }
+  .matrix tr.row td.name { text-align: left; font-family: var(--sans); padding: 0 10px 0 4px; white-space: nowrap; }
+  .matrix tr.row td.name b { font-family: var(--mono); font-weight: 500; margin-right: 8px; }
+  .matrix tr.row td.name span { color: var(--muted); }
+  .matrix tr.row:hover td.name, .matrix tr.row.sel td.name { color: var(--accent); }
+  .matrix tr.row.sel td.name span { color: var(--accent); }
+  .matrix tr.row:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
+  .matrix td.meta { font-size: 12px; color: var(--muted); padding: 0 6px; white-space: nowrap; }
+  .top { outline: 1.5px solid var(--accent); outline-offset: -1.5px; }
+  .legend { display: flex; gap: 18px; color: var(--faint); font-size: 12px; margin-top: 10px; flex-wrap: wrap; }
+  .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
+
+  /* inspector */
+  aside { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; align-self: start; position: sticky; top: 16px; }
+  aside h3 { margin: 0; font-size: 20px; }
+  aside .sub { color: var(--muted); font-size: 13px; margin: 2px 0 16px; }
+  .kv { display: grid; grid-template-columns: 1fr auto; gap: 6px 12px; font-size: 13px; margin-bottom: 16px; }
+  .kv dt { color: var(--muted); }
+  .kv dd { margin: 0; font-family: var(--mono); text-align: right; }
+  .block { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; font-size: 13px; }
+  .block h4 { margin: 0 0 6px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--cyan); font-weight: 600; }
+  .block p { margin: 0; color: var(--ink); line-height: 1.5; }
+  .block p small { color: var(--muted); font-size: 12px; }
+  .quote { margin: 8px 0 0; padding: 8px 10px; background: var(--surface-2); border-radius: 8px; line-height: 1.45; }
+  .quote .tags { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; font-family: var(--mono); font-size: 11px; }
+  .quote .tags span { border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; color: var(--muted); }
+  .quote .tags span.churn { color: var(--danger); border-color: color-mix(in oklab, var(--danger) 45%, var(--line)); }
+
+  /* flow */
+  .flow { margin-top: 36px; border-top: 1px solid var(--line); padding-top: 22px; }
+  .chain { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0; }
+  @media (max-width: 860px) { .chain { grid-template-columns: 1fr 1fr; row-gap: 16px; } }
+  .step { padding: 0 18px 0 0; position: relative; }
+  .step + .step { padding-left: 18px; border-left: 1px solid var(--line); }
+  .step .k { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+  .step h5 { margin: 4px 0 6px; font-size: 16px; }
+  .step p { margin: 0; color: var(--muted); font-size: 13.5px; line-height: 1.5; text-wrap: pretty; }
+  .step code { font-family: var(--mono); font-size: 12px; color: var(--ink); }
+  .why { margin-top: 26px; display: grid; grid-template-columns: 1fr 1fr; gap: 28px; font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .why strong { color: var(--ink); font-weight: 600; }
+  @media (max-width: 860px) { .why { grid-template-columns: 1fr; } }
+  footer { margin-top: 36px; color: var(--faint); font-size: 12px; font-family: var(--mono); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  @media (prefers-reduced-motion: no-preference) { .matrix td.cell { transition: filter .15s; } .matrix tr.row:hover td.cell { filter: brightness(1.25); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="mark"><h1>SUKI <span>PULSE</span></h1><span class="pill">Camp Run · Open Innovation</span></div>
+      <p class="tagline">Every complaint at Suki Mart is a symptom. Suki Pulse lets Hermes find the operational cause behind it (a late rider, a supplier, a missing purchase order, a broken points ledger) and fix both sides.</p>
+    </div>
+    <div class="run" id="run"></div>
+  </header>
+
+  <main>
+    <section>
+      <h2>Root causes of open complaints · by branch</h2>
+      <table class="matrix" id="matrix" aria-label="Complaints by root cause and branch"></table>
+      <div class="legend">
+        <span><i style="background:var(--surface-2)"></i>few</span>
+        <span><i style="background:color-mix(in oklab, var(--cyan) 70%, var(--bg))"></i>many</span>
+        <span><i style="outline:1.5px solid var(--accent);outline-offset:-1.5px;background:transparent"></i>top cause for the branch</span>
+        <span>A complaint can carry several causes. Jev scores each cause independently.</span>
+      </div>
+    </section>
+    <aside id="inspector" aria-live="polite"></aside>
+  </main>
+
+  <section class="flow">
+    <h2>How Hermes runs it: three connected layers</h2>
+    <div class="chain">
+      <div class="step"><div class="k">03 · THE FACE</div><h5>Desktop plugin</h5><p>A Suki Pulse pane in Hermes Desktop: pick a branch and click <em>Pulse check</em>, <em>Fix top root cause</em> or <em>Recover riskiest customer</em>. Results come back as native cards in the chat.</p></div>
+      <div class="step"><div class="k">02 · THE PLAYBOOK</div><h5>Skill <code>suki-pulse</code></h5><p>Triage, then root cause, then a plan covering both operations and customer recovery. It asks before it writes anything, then shows a before/after scorecard.</p></div>
+      <div class="step"><div class="k">01 · THE HANDS</div><h5>MCP server <code>suki</code></h5><p>10 domain tools. Read tools: triage, rollup, scorecard, customer story. Write tools: resolve, reply, reconcile points, draft POs, flag rider.</p></div>
+      <div class="step"><div class="k">+ SYSTEM ONE</div><h5>TypeSafe Jev</h5><p>One call per complaint returns six yes/no root-cause checks, a churn score and urgency. It costs fractions of a cent and is cached. If Jev is unavailable, the tools fall back to keyword rules.</p></div>
+    </div>
+    <div class="why">
+      <p><strong>Why both tracks.</strong> The customer experience team sees angry tickets and the operations team sees late POs, but nobody joins them. Suki Pulse ranks a branch's complaints by cause, then shows the operational record behind each cause: riders' 30-day lateness across every branch they serve, perishables near expiry, items under reorder point with no purchase order, and points ledgers that don't add up.</p>
+      <p><strong>Why Jev and Hermes.</strong> Jev is the fast classifier: it read all of the open complaints shown above in about a minute, for less than two cents. Hermes is the slow thinker: it reads the evidence, decides on the fixes, asks you, and then acts through the MCP tools.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span>Suki Mart and every record are fictional (Camp Run sandbox). Snapshot taken at sandbox time <span id="snap"></span>.</span>
+    <span>Hermes Agent · TypeSafe Jev · DEVCON × Avtica · Oct 2 2026</span>
+  </footer>
+</div>
+
+<script id="pulse-data" type="application/json">__PULSE_DATA__</script>
+<script>
+(function () {
+  const D = JSON.parse(document.getElementById('pulse-data').textContent);
+  const CAUSES = [
+    ['late_delivery', 'Late delivery'], ['spoiled_damaged', 'Spoiled / damaged'], ['out_of_stock', 'Out of stock / wrong'],
+    ['loyalty', 'Loyalty points'], ['promo', 'Promo code'], ['payment_refund', 'Payment / refund']
+  ];
+  const LABEL = Object.fromEntries(CAUSES);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const php = (n) => '₱' + Math.round(n).toLocaleString('en-PH');
+
+  document.getElementById('snap').textContent = D.generated_at_sandbox;
+  document.getElementById('run').innerHTML =
+    `<b>${D.items_triaged}</b> open complaints · <b>${D.branches.length}</b> branches<br>` +
+    `engine <b>${esc(D.engine.join(', '))}</b> · ${D.input_tokens.toLocaleString()} tokens<br>` +
+    `cost <b>$${D.cost_usd.toFixed(4)}</b> · ${D.seconds}s · fallbacks ${D.fallbacks}`;
+
+  const max = Math.max(1, ...D.branches.flatMap((b) => CAUSES.map(([k]) => b.causes[k] || 0)));
+  const shade = (v) => {
+    if (!v) return 'background:transparent;color:var(--faint)';
+    const t = Math.min(1, v / max);
+    const pct = Math.round(18 + t * 62);
+    return `background:color-mix(in oklab, var(--cyan) ${pct}%, var(--bg));color:${t > 0.55 ? '#06102e' : 'var(--ink)'}`;
+  };
+
+  const rows = [...D.branches].sort((a, b) => b.items - a.items);
+  const m = document.getElementById('matrix');
+  m.innerHTML =
+    `<thead><tr><th class="b">Branch</th>${CAUSES.map(([, l]) => `<th>${esc(l)}</th>`).join('')}<th>Open</th><th>High churn</th></tr></thead><tbody>` +
+    rows.map((b) => {
+      const name = b.name.replace('Suki Mart ', '');
+      return `<tr class="row" tabindex="0" data-code="${esc(b.code)}"><td class="name"><b>${esc(b.code)}</b><span>${esc(name)}</span></td>` +
+        CAUSES.map(([k]) => {
+          const v = b.causes[k] || 0;
+          return `<td class="cell${b.top_cause === k ? ' top' : ''}" style="${shade(v)}" title="${esc(LABEL[k])}: ${v}">${v || '·'}</td>`;
+        }).join('') +
+        `<td class="meta">${b.items}</td><td class="meta">${b.high_churn}</td></tr>`;
+    }).join('') + '</tbody>';
+
+  const insp = document.getElementById('inspector');
+  function show(code) {
+    const b = D.branches.find((x) => x.code === code);
+    if (!b) return;
+    m.querySelectorAll('tr.row').forEach((r) => r.classList.toggle('sel', r.dataset.code === code));
+    const s = b.scorecard;
+    const r = b.worst_rider;
+    const st = b.most_urgent_restock;
+    insp.innerHTML =
+      `<h3>${esc(b.code)} · ${esc(b.name.replace('Suki Mart ', ''))}</h3>` +
+      `<div class="sub">Top cause: <b style="color:var(--accent)">${esc(LABEL[b.top_cause] || 'n/a')}</b>${b.has_delivery ? '' : ' · no delivery service'}</div>` +
+      `<dl class="kv">` +
+      `<dt>Open tickets</dt><dd>${s.open_tickets}</dd>` +
+      `<dt>Never answered</dt><dd>${s.never_answered}</dd>` +
+      `<dt>Unreplied 1–2★ reviews</dt><dd>${s.unreplied_low_reviews}</dd>` +
+      `<dt>Late deliveries (30d)</dt><dd>${s.late_delivery_pct_30d == null ? 'n/a' : s.late_delivery_pct_30d + '%'}</dd>` +
+      `<dt>Loyalty ledger mismatches</dt><dd>${s.loyalty_mismatches}</dd>` +
+      `<dt>Low stock, no PO</dt><dd>${s.reorder_without_po}</dd>` +
+      `<dt>Perishables expiring ≤3d</dt><dd>${php(s.perishables_expiring_3d_php)}</dd>` +
+      `</dl>` +
+      (r ? `<div class="block"><h4>Rider evidence</h4><p>${esc(r.rider)}: <b>${r.late_all_branches}</b> late of ${r.deliveries_all_branches} deliveries across ${r.branches_served} branches in 30 days <small>(${r.late_here} late here)</small>. Fix: <code>flag_rider_for_coaching</code></p></div>` : '') +
+      (st ? `<div class="block"><h4>Stock evidence</h4><p>${esc(st.name)}: ${st.on_hand} on hand, reorder point ${st.reorder_point}, no open PO (${esc(st.supplier)}). Fix: <code>draft_purchase_orders</code></p></div>` : '') +
+      `<div class="block"><h4>What Jev read</h4>` +
+      b.sample.map((q) => `<div class="quote">“${esc(q.text)}”<div class="tags"><span>${esc(q.ref)}</span>${q.causes.map((c) => `<span>${esc(LABEL[c] || c)}</span>`).join('')}<span class="${q.churn >= 1.5 ? 'churn' : ''}">churn ${Number(q.churn).toFixed(2)}/2</span></div></div>`).join('') +
+      `</div>`;
+  }
+  m.addEventListener('click', (e) => { const tr = e.target.closest('tr.row'); if (tr) show(tr.dataset.code); });
+  m.addEventListener('keydown', (e) => { const tr = e.target.closest('tr.row'); if (tr && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); show(tr.dataset.code); } });
+  show('TMR');
+})();
+</script>
+</body>
+</html>
