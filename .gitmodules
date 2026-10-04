@@ -1,3 +1,4 @@
 [submodule "Camp-Run-with-Hermes-Agent"]
 	path = Camp-Run-with-Hermes-Agent
 	url = https://github.com/riecodes/Camp-Run-with-Hermes-Agent.git
+	ignore = dirty
