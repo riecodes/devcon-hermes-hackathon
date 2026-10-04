@@ -15,7 +15,7 @@ Everything we built for **CAMP / RUN: Build Overnight with Hermes Agent** (DEVCO
 | Pitch deck (private Claude artifact) | https://claude.ai/artifact/9zHdDFmBhLroG2ooyebfuJ |
 | Laptop prep checklist (private Claude artifact) | https://claude.ai/artifact/YQGkM314b2dPfGz8PeRpd2 |
 
-One site, one domain. The old jev-live-race.vercel.app and jev-decision-race.vercel.app now only redirect there (`redirects/`).
+One site, one Vercel project. The old jev-live-race.vercel.app and jev-decision-race.vercel.app are domains on the same `suki-pulse` project and redirect to `/race/` and `/benchmark/` (host rules in `suki-pulse-site/vercel.json`), so the QR codes in the deck still work.
 
 ## What's in this folder
 
@@ -23,7 +23,6 @@ One site, one domain. The old jev-live-race.vercel.app and jev-decision-race.ver
 |---|---|---|
 | `Camp-Run-with-Hermes-Agent/` | The three layers: `mcp-server/server.py` (10 `suki` tools), `skills/suki-pulse/`, `desktop-plugin/suki-pulse/`, on the Suki Mart sandbox (`data/store.db`, 221,142 rows). A git submodule: our fork of the organizers' starter kit. | Hermes |
 | `suki-pulse-site/` | The one deployed site (suki-pulse.vercel.app): `/` the dashboard of the full Jev run (Hermes), `/race/` the live race page + `api/` functions with guardrails (passcode, same-origin, per-visitor limits, 600-char text, batches of 20), `/benchmark/` the recorded race | Hermes, Claude Code |
-| `redirects/` | Redirect-only Vercel projects for the two old domains | Claude Code |
 | `jev-speed/` | `bench.py` (Jev vs Claude Haiku 4.5 benchmark), `data.json` (measured results), `build.py` + `template.html` (recorded page), `app.py` + `live.html` (local live race on 127.0.0.1:8790), `build_live_deploy.py` | Claude Code |
 | `videos/` | Demo films: `remotion/` (final cut `out/suki-pulse-draft-a-sound.mp4`), `film/`, `shots/` | Claude Code (video session) |
 | `pitch/` | `script/` (pitch scripts and notes), `deck/` (source files of the Claude Slides deck), `qr/` (QR codes + `make_qr.py`, each verified to decode) | Claude Code |
