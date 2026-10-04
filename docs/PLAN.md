@@ -6,8 +6,8 @@ MCP PLUGINS AND SKILLS
 JEV LIVE RACE DEMO PASSCODE: (redacted, ask the team)
 
 https://suki-pulse.vercel.app/
-https://jev-live-race.vercel.app/ (passcode-gated)
-https://jev-decision-race.vercel.app/
+https://suki-pulse.vercel.app/race/ (passcode-gated)
+https://suki-pulse.vercel.app/benchmark/
 
 TRACK 03 OPTIONAL OPEN INNOVATION - HERMES x JEV
 
