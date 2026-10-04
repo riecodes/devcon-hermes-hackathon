@@ -45,9 +45,9 @@ cd jev-speed; python app.py
 # Re-measure and rebuild the recorded page
 cd jev-speed; python bench.py; python bench.py --haiku-burst; python build.py
 
-# Rebuild the live race page into the site, then deploy the one site
+# Rebuild the live race page into the site, then commit and push: the suki-pulse
+# Vercel project builds suki-pulse-site/ from main (Root Directory suki-pulse-site)
 cd jev-speed; python build_live_deploy.py
-cd ..\suki-pulse-site; vercel deploy --prod
 ```
 
 ## Secrets
