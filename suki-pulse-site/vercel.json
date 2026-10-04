@@ -1,9 +1,5 @@
 {
   "cleanUrls": true,
-  "redirects": [
-    { "source": "/(.*)", "has": [{ "type": "host", "value": "jev-live-race.vercel.app" }], "destination": "https://suki-pulse.vercel.app/race/", "permanent": false },
-    { "source": "/(.*)", "has": [{ "type": "host", "value": "jev-decision-race.vercel.app" }], "destination": "https://suki-pulse.vercel.app/benchmark/", "permanent": false }
-  ],
   "functions": {
     "api/race.js": { "maxDuration": 30 },
     "api/batch.js": { "maxDuration": 60 },

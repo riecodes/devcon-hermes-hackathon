@@ -15,7 +15,7 @@ Everything we built for **CAMP / RUN: Build Overnight with Hermes Agent** (DEVCO
 | Pitch deck (private Claude artifact) | https://claude.ai/artifact/9zHdDFmBhLroG2ooyebfuJ |
 | Laptop prep checklist (private Claude artifact) | https://claude.ai/artifact/YQGkM314b2dPfGz8PeRpd2 |
 
-One site, one Vercel project. The old jev-live-race.vercel.app and jev-decision-race.vercel.app are domains on the same `suki-pulse` project and redirect to `/race/` and `/benchmark/` (host rules in `suki-pulse-site/vercel.json`), so the QR codes in the deck still work.
+One site, one Vercel project (`suki-pulse`). The old jev-live-race.vercel.app and jev-decision-race.vercel.app links (and their QR codes in the deck) were retired on October 4, 2026.
 
 ## What's in this folder
 
