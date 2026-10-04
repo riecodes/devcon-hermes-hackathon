@@ -45,7 +45,7 @@ async function post(url, headers, body) {
   const t0 = performance.now();
   const r = await fetch(url, {
     method: 'POST', body: JSON.stringify(body), signal: AbortSignal.timeout(LIMITS.timeoutMs),
-    headers: { 'Content-Type': 'application/json', 'User-Agent': 'jev-live-race/1.0', ...headers }
+    headers: { 'Content-Type': 'application/json', 'User-Agent': 'suki-pulse/1.0', ...headers }
   });
   if (!r.ok) throw new Error(`upstream ${r.status}`);
   const data = await r.json();

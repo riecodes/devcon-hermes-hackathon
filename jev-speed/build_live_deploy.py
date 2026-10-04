@@ -1,4 +1,4 @@
-"""Build the Vercel copy of the live race: ../jev-live-race/{index.html, api/_items.js}.
+"""Build the Vercel copy of the live race: ../suki-pulse-site/{race/index.html, api/_items.js}.
 
 The local app (app.py on 127.0.0.1:8790) is untouched. This copy adds a demo-passcode gate,
 sends the passcode on every API call, and drops the 40-complaint batch (server caps at 20).
